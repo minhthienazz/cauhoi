@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Deep Soul - Mobile Optimized</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* RESET & BASE STYLES */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #f0f2f5; /* Fallback color */
+            /* Gradient background */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* KHÓA CUỘN BODY - QUAN TRỌNG CHO IOS */
+            height: 100dvh; 
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* CARD CONTAINER: Thay đổi logic để full màn hình trên mobile */
+        .app-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            
+            /* Responsive Logic */
+            width: 100%;
+            height: 100dvh; /* Full chiều cao thực tế của thiết bị mobile */
+            
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Trên máy tính/tablet thì bo tròn và có shadow */
+        @media (min-width: 768px) {
+            .app-container {
+                width: 100%;
+                max-width: 600px; /* Giới hạn chiều rộng như điện thoại */
+                height: 90vh; /* Không full màn hình */
+                max-height: 900px;
+                border-radius: 24px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                border: 1px solid rgba(255,255,255,0.4);
+            }
+        }
+
+        /* SCROLL AREA: Phần giữa cuộn được */
+        .scroll-content {
+            flex: 1; /* Chiếm toàn bộ không gian còn lại */
+            overflow-y: auto; /* Cho phép cuộn dọc */
+            overflow-x: hidden;
+            padding: 20px;
+            /* Smooth scroll ios */
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Ẩn scrollbar nhưng vẫn cuộn được cho đẹp */
+        .scroll-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* FOOTER: Luôn dính đáy */
+        .footer-fixed {
+            flex-shrink: 0; /* Không bị co lại */
+            background: rgba(255,255,255,0.9);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 16px;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom)); /* Cho iPhone X trở lên */
+            backdrop-filter: blur(10px);
+            z-index: 50;
+        }
+
+        /* OPTION STYLING */
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1.5px solid #e2e8f0;
+            background: white;
+        }
+        .option-card:active {
+            transform: scale(0.98);
+        }
+        .option-selected {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+            color: white !important;
+            border-color: #764ba2 !important;
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+        }
+        .circle-check {
+            border-color: #cbd5e1;
+        }
+        .option-selected .circle-check {
+            border-color: white;
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* ANIMATIONS */
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* LOADING */
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #764ba2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- === SCREEN 1: WELCOME === -->
+        <div id="welcome-screen" class="absolute inset-0 z-50 bg-white flex flex-col h-full">
+            <div class="scroll-content flex flex-col items-center justify-center text-center">
+                <div class="w-24 h-24 bg-gradient-to-tr from-purple-100 to-blue-100 rounded-full flex items-center justify-center mb-6 shadow-sm animate-pulse">
+                    <i class="fas fa-fingerprint text-4xl text-purple-600"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-3">Soul Connection</h1>
+                <p class="text-gray-500 px-6 leading-relaxed mb-8">
+                    Hành trình 30 câu hỏi để thấu hiểu bản thân và kết nối cảm xúc.
+                </p>
+                
+                <div class="w-full max-w-xs space-y-4">
+                    <div class="text-left">
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Tên của bạn</label>
+                        <input type="text" id="user-name" placeholder="Nhập tên..." class="w-full mt-1 px-5 py-4 rounded-2xl border border-gray-200 bg-gray-50 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all">
+                    </div>
+                    
+                    <div class="text-xs text-gray-400 bg-gray-50 p-4 rounded-xl text-left border border-gray-100">
+                        <p class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i> 30 Câu hỏi tâm lý</p>
+                        <p class="flex items-center gap-2 mt-2"><i class="fas fa-check-circle text-green-500"></i> Bắt buộc trả lời hết</p>
+                        <p class="flex items-center gap-2 mt-2"><i class="fas fa-clock text-orange-500"></i> Giới hạn: 30 phút</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fixed Bottom Button for Welcome -->
+            <div class="footer-fixed w-full">
+                <button onclick="startQuiz()" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-gray-800 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    Bắt đầu ngay <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- === SCREEN 2: QUIZ === -->
+        <div id="quiz-screen" class="hidden flex flex-col h-full relative">
+            
+            <!-- HEADER: Fixed Top -->
+            <div class="flex-shrink-0 px-5 py-4 bg-white/80 backdrop-blur-md border-b border-gray-100 flex justify-between items-center z-10">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 block mb-0.5">NGƯỜI THAM GIA</span>
+                    <span id="display-name" class="text-base font-bold text-gray-800 truncate block max-w-[150px]">Guest</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="h-8 px-3 rounded-full bg-purple-50 text-purple-600 flex items-center font-mono font-bold text-sm border border-purple-100">
+                        <span id="timer">30:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROGRESS BAR -->
+            <div class="w-full bg-gray-100 h-1 flex-shrink-0">
+                <div id="progress-bar" class="bg-purple-600 h-1 transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <!-- CONTENT: Scrollable Middle -->
+            <div class="scroll-content" id="scroll-container">
+                <div class="mb-4">
+                    <span class="inline-block px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded-lg mb-2" id="question-number">CÂU 1/30</span>
+                    <h2 class="text-xl font-bold text-gray-800 leading-snug" id="question-text">Loading question...</h2>
+                    <p class="text-sm text-gray-500 mt-2 italic" id="question-desc"></p>
+                </div>
+
+                <!-- Error Badge -->
+                <div id="error-badge" class="hidden mb-4 p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100 animate-pulse flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i> <span>Vui lòng chọn đáp án!</span>
+                </div>
+
+                <!-- Options -->
+                <div id="options-area" class="space-y-3 pb-4">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+
+            <!-- FOOTER: Fixed Bottom Navigation -->
+            <div class="footer-fixed flex gap-3">
+                <button id="btn-prev" onclick="prevQuestion()" class="w-14 flex-shrink-0 h-14 rounded-2xl bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                
+                <button id="btn-next" onclick="nextQuestion()" class="flex-1 h-14 rounded-2xl bg-gray-900 text-white font-bold hover:bg-gray-800 shadow-md flex items-center justify-center gap-2 active:bg-gray-700 transition-colors">
+                    Tiếp theo <i class="fas fa-chevron-right text-xs"></i>
+                </button>
+
+                <button id="btn-submit" onclick="attemptSubmit()" class="hidden flex-1 h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-lg flex items-center justify-center gap-2 active:opacity-90 transition-all">
+                    Gửi kết quả <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- === SCREEN 3: SUCCESS === -->
+        <div id="success-screen" class="hidden absolute inset-0 z-50 bg-white flex-col items-center justify-center p-8 text-center h-full">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-500 text-3xl shadow-sm animate-bounce">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Tuyệt vời!</h2>
+            <p class="text-gray-500 mb-8 text-sm">Cảm ơn bạn đã hoàn thành bài test. Dữ liệu đã được gửi đi an toàn.</p>
+            
+            <div class="w-full max-w-xs bg-gray-50 rounded-2xl p-4 mb-8 border border-gray-100">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-400">Người gửi:</span>
+                    <span class="font-bold text-gray-800" id="success-name">--</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Trạng thái:</span>
+                    <span class="font-bold text-green-600">Đã gửi Admin</span>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="text-gray-400 text-sm font-medium underline decoration-dashed p-4">Làm lại bài test</button>
+        </div>
+
+        <!-- === SCREEN 4: LOADING === -->
+        <div id="loading-screen" class="hidden absolute inset-0 z-[60] bg-white/90 backdrop-blur-sm flex-col items-center justify-center">
+            <div class="loader mb-4"></div>
+            <p class="text-sm font-bold text-gray-600 animate-pulse">Đang gửi dữ liệu...</p>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // CONFIG
+        const TELEGRAM_TOKEN = "6452107579:AAHmflV5nkc8aqEz5kVAAveEITVw7tU5GfU";
+        const ADMIN_CHAT_ID = "2028093357";
+
+        // 30 QUESTIONS DATA
+        const questions = [
+            { id: 1, type: 'mcq', text: "Ngày nghỉ, năng lượng của bạn phục hồi tốt nhất khi nào?", desc: "Introvert vs Extrovert", options: [{key:'A',val:"Ở một mình, không gian yên tĩnh"}, {key:'B',val:"Gặp gỡ bạn thân, chill nhẹ"}, {key:'C',val:"Tiệc tùng, sự kiện đông người"}, {key:'D',val:"Vận động, đi phượt"}] },
+            { id: 2, type: 'mcq', text: "Bạn là kiểu người của buổi nào?", desc: "Nhịp sinh học", options: [{key:'A',val:"Sáng sớm (Early bird)"}, {key:'B',val:"Đêm khuya (Night owl)"}, {key:'C',val:"Linh hoạt tùy việc"}, {key:'D',val:"Lúc nào cũng buồn ngủ"}] },
+            { id: 3, type: 'mcq', text: "Quan điểm về tiền bạc?", desc: "Tài chính", options: [{key:'A',val:"Tiết kiệm là quốc sách"}, {key:'B',val:"YOLO - Sống là hưởng thụ"}, {key:'C',val:"Cân bằng, chi cho trải nghiệm"}, {key:'D',val:"Không quan tâm lắm"}] },
+            { id: 4, type: 'mcq', text: "Bàn làm việc của bạn trông thế nào?", desc: "Tính ngăn nắp", options: [{key:'A',val:"Cực gọn gàng"}, {key:'B',val:"Hơi bừa nhưng có trật tự"}, {key:'C',val:"Hỗn độn nghệ thuật"}, {key:'D',val:"Sạch sẽ ám ảnh"}] },
+            { id: 5, type: 'mcq', text: "Bạn thích thú cưng nào?", desc: "Khuynh hướng tình cảm", options: [{key:'A',val:"Chó (Trung thành)"}, {key:'B',val:"Mèo (Độc lập)"}, {key:'C',val:"Cả hai / Loài khác"}, {key:'D',val:"Không nuôi con gì"}] },
+            { id: 6, type: 'mcq', text: "Phong cách du lịch?", desc: "Sự linh hoạt", options: [{key:'A',val:"Lên lịch từng phút"}, {key:'B',val:"Tùy hứng, tới đâu tính đó"}, {key:'C',val:"Nghỉ dưỡng sang chảnh"}, {key:'D',val:"Khám phá bụi bặm"}] },
+            { id: 7, type: 'open', text: "Món ăn nào khiến bạn vui ngay lập tức?", desc: "Comfort food (Viết > 4 từ)", placeholder: "Món mình thích là..." },
+            { id: 8, type: 'mcq', text: "Khi cãi nhau, bạn thường làm gì?", desc: "Xử lý xung đột", options: [{key:'A',val:"Im lặng chờ bình tĩnh"}, {key:'B',val:"Cãi cho ra lẽ ngay"}, {key:'C',val:"Nhường nhịn cho xong"}, {key:'D',val:"Bỏ đi chỗ khác"}] },
+            { id: 9, type: 'mcq', text: "Vai trò trong nhóm bạn?", desc: "Vị trí xã hội", options: [{key:'A',val:"Leader - Trưởng nhóm"}, {key:'B',val:"Cây hài - Tạo không khí"}, {key:'C',val:"Chuyên gia tư vấn"}, {key:'D',val:"Người quan sát im lặng"}] },
+            { id: 10, type: 'mcq', text: "Thái độ với việc trễ giờ?", desc: "Kỷ luật", options: [{key:'A',val:"Ghét cay đắng"}, {key:'B',val:"Chấp nhận trễ 5-10p"}, {key:'C',val:"Mình hay trễ lắm"}, {key:'D',val:"Tùy người hẹn là ai"}] },
+            { id: 11, type: 'mcq', text: "Phong cách nhắn tin?", desc: "Giao tiếp online", options: [{key:'A',val:"Siêu tốc, nhiều icon"}, {key:'B',val:"Chậm rãi, viết đủ câu"}, {key:'C',val:"Ngắn gọn, súc tích"}, {key:'D',val:"Seen không rep"}] },
+            { id: 12, type: 'open', text: "Điều gì khiến bạn mất thiện cảm ngay lập tức?", desc: "Ghét nhất là... (Viết > 4 từ)", placeholder: "Mình ghét kiểu người..." },
+            { id: 13, type: 'mcq', text: "Bạn có dễ tin người không?", desc: "Niềm tin", options: [{key:'A',val:"Tin cho đến khi họ sai"}, {key:'B',val:"Không, cần thời gian dài"}, {key:'C',val:"Tùy trực giác mách bảo"}, {key:'D',val:"Luôn đề phòng"}] },
+            { id: 14, type: 'mcq', text: "Vòng tròn bạn bè?", desc: "Quan hệ xã hội", options: [{key:'A',val:"Ít nhưng chất"}, {key:'B',val:"Rộng rãi, ai cũng quen"}, {key:'C',val:"Nhóm nhỏ chơi từ bé"}, {key:'D',val:"Thích độc lập"}] },
+            { id: 15, type: 'mcq', text: "Ngôn ngữ tình yêu của bạn?", desc: "Love Language", options: [{key:'A',val:"Lời khen ngợi"}, {key:'B',val:"Thời gian bên nhau"}, {key:'C',val:"Sự chăm sóc"}, {key:'D',val:"Cử chỉ âu yếm"}] },
+            { id: 16, type: 'mcq', text: "Mức độ ghen tuông?", desc: "Chiếm hữu", options: [{key:'A',val:"Ghen ngầm, im lặng"}, {key:'B',val:"Ghen ra mặt, làm lớn chuyện"}, {key:'C',val:"Ít ghen, tin tưởng"}, {key:'D',val:"Thích chọc người ta ghen"}] },
+            { id: 17, type: 'mcq', text: "Tốc độ yêu đương?", desc: "Nhịp độ tình cảm", options: [{key:'A',val:"Sét đánh (Nhanh)"}, {key:'B',val:"Mưa dầm (Chậm)"}, {key:'C',val:"Lý trí cân nhắc"}, {key:'D',val:"Tùy duyên"}] },
+            { id: 18, type: 'mcq', text: "Khả năng tha thứ?", desc: "Bao dung", options: [{key:'A',val:"Dễ mềm lòng"}, {key:'B',val:"Nhớ dai, khó quên"}, {key:'C',val:"Tha thứ nhưng ghim"}, {key:'D',val:"Tùy lỗi nặng nhẹ"}] },
+            { id: 19, type: 'open', text: "Phẩm chất quan trọng nhất ở người yêu?", desc: "Tiêu chuẩn (Viết > 4 từ)", placeholder: "Đó là sự..." },
+            { id: 20, type: 'mcq', text: "Công khai người yêu lên MXH?", desc: "Riêng tư", options: [{key:'A',val:"Có, đánh dấu chủ quyền"}, {key:'B',val:"Thỉnh thoảng dịp lễ"}, {key:'C',val:"Không, yêu kín đáo"}, {key:'D',val:"Cưới mới đăng"}] },
+            { id: 21, type: 'open', text: "Nỗi sợ lớn nhất trong tình yêu?", desc: "Tổn thương (Viết > 4 từ)", placeholder: "Mình sợ..." },
+            { id: 22, type: 'mcq', text: "Làm bạn với người yêu cũ?", desc: "Quá khứ", options: [{key:'A',val:"Không bao giờ"}, {key:'B',val:"Có thể nếu chia tay êm đẹp"}, {key:'C',val:"Xã giao bình thường"}, {key:'D',val:"Vẫn âm thầm quan tâm"}] },
+            { id: 23, type: 'mcq', text: "Quyết định dựa trên?", desc: "Lý trí vs Cảm xúc", options: [{key:'A',val:"Logic, thực tế"}, {key:'B',val:"Trực giác, cảm xúc"}, {key:'C',val:"Lời khuyên người khác"}, {key:'D',val:"May rủi (Tung xu)"}] },
+            { id: 24, type: 'open', text: "Điều muốn thay đổi trong quá khứ?", desc: "Hối tiếc (Viết > 4 từ)", placeholder: "Mình ước..." },
+            { id: 25, type: 'mcq', text: "Bạn có hay Overthinking không?", desc: "Suy nghĩ", options: [{key:'A',val:"Có, suy diễn đủ thứ"}, {key:'B',val:"Thỉnh thoảng khi buồn"}, {key:'C',val:"Hiếm khi, sống vô tư"}, {key:'D',val:"Chỉ lo về tiền thôi"}] },
+            { id: 26, type: 'open', text: "3 từ mô tả chính xác bạn?", desc: "Nhận thức (Viết > 4 từ)", placeholder: "Ví dụ: Hài hước, nóng tính..." },
+            { id: 27, type: 'mcq', text: "Ưu tiên số 1 hiện tại?", desc: "Mục tiêu", options: [{key:'A',val:"Sự nghiệp, Tiền"}, {key:'B',val:"Tình yêu"}, {key:'C',val:"Gia đình"}, {key:'D',val:"Tự do bản thân"}] },
+            { id: 28, type: 'mcq', text: "Bạn tin vào định mệnh không?", desc: "Thế giới quan", options: [{key:'A',val:"Tin tuyệt đối"}, {key:'B',val:"Tin một phần"}, {key:'C',val:"Không, do mình quyết định"}, {key:'D',val:"Không quan tâm"}] },
+            { id: 29, type: 'open', text: "Chủ đề bạn nói mãi không chán?", desc: "Đam mê (Viết > 4 từ)", placeholder: "Mình thích nói về..." },
+            { id: 30, type: 'open', text: "Lời nhắn gửi cuối cùng?", desc: "Thông điệp (Viết > 4 từ)", placeholder: "Hy vọng..." }
+        ];
+
+        // STATE
+        let currentStep = 0;
+        let userAnswers = {};
+        let userName = "";
+        let timeLeft = 30 * 60;
+        let timerInterval;
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const successScreen = document.getElementById('success-screen');
+        const loadingScreen = document.getElementById('loading-screen');
+        const scrollContainer = document.getElementById('scroll-container');
+        
+        function startQuiz() {
+            const input = document.getElementById('user-name');
+            if(!input.value.trim()) {
+                input.focus();
+                input.classList.add('ring-2', 'ring-red-400', 'bg-red-50');
+                setTimeout(() => input.classList.remove('ring-2', 'ring-red-400', 'bg-red-50'), 1000);
+                return;
+            }
+            userName = input.value.trim();
+            document.getElementById('display-name').textContent = userName;
+            
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            quizScreen.classList.add('flex'); // Enable flex layout
+            
+            renderQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                timerEl.textContent = `${m}:${s < 10 ? '0'+s : s}`;
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const q = questions[currentStep];
+            const area = document.getElementById('options-area');
+            const errorBadge = document.getElementById('error-badge');
+            
+            // Reset UI
+            errorBadge.classList.add('hidden');
+            area.innerHTML = '';
+            document.getElementById('question-number').textContent = `CÂU ${currentStep + 1}/${questions.length}`;
+            document.getElementById('question-text').textContent = q.text;
+            document.getElementById('question-desc').textContent = q.desc;
+
+            // Scroll to top of content
+            scrollContainer.scrollTop = 0;
+
+            // Render Options
+            if(q.type === 'mcq') {
+                q.options.forEach(opt => {
+                    const isSelected = userAnswers[q.id] === opt.key;
+                    const el = document.createElement('div');
+                    el.className = `option-card p-4 rounded-2xl cursor-pointer flex items-center gap-4 ${isSelected ? 'option-selected' : ''}`;
+                    el.onclick = () => {
+                        userAnswers[q.id] = opt.key;
+                        renderQuestion();
+                        // Auto scroll to bottom slightly if needed
+                    };
+                    el.innerHTML = `
+                        <div class="circle-check w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${isSelected ? 'border-white bg-white/20' : 'border-gray-300'}">
+                            ${isSelected ? '<i class="fas fa-check text-white text-sm"></i>' : '<span class="text-xs font-bold text-gray-400">'+opt.key+'</span>'}
+                        </div>
+                        <span class="text-sm font-semibold flex-1 ${isSelected ? 'text-white' : 'text-gray-700'}">${opt.val}</span>
+                    `;
+                    area.appendChild(el);
+                });
+            } else {
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = `
+                    <textarea id="open-ans" class="w-full p-4 rounded-2xl border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none h-40 resize-none text-base" placeholder="${q.placeholder}"></textarea>
+                    <div class="text-right text-xs text-gray-400 mt-2">Tối thiểu 4 từ</div>
+                `;
+                area.appendChild(wrapper);
+                
+                const textarea = wrapper.querySelector('textarea');
+                textarea.value = userAnswers[q.id] || "";
+                textarea.addEventListener('input', (e) => {
+                    userAnswers[q.id] = e.target.value;
+                    errorBadge.classList.add('hidden');
+                });
+            }
+
+            // Buttons Logic
+            document.getElementById('btn-prev').disabled = currentStep === 0;
+            if(currentStep === questions.length - 1) {
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-submit').classList.remove('hidden');
+                document.getElementById('btn-submit').classList.add('flex');
+            } else {
+                document.getElementById('btn-next').classList.remove('hidden');
+                document.getElementById('btn-submit').classList.add('hidden');
+                document.getElementById('btn-submit').classList.remove('flex');
+            }
+        }
+
+        function validate() {
+            const q = questions[currentStep];
+            const ans = userAnswers[q.id];
+            
+            let isValid = false;
+            if(q.type === 'mcq') {
+                isValid = !!ans;
+            } else {
+                // Count words for open questions
+                isValid = ans && ans.trim().split(/\s+/).length >= 4;
+            }
+
+            if(!isValid) {
+                const badge = document.getElementById('error-badge');
+                badge.classList.remove('hidden');
+                // Shake effect
+                badge.classList.add('translate-x-1');
+                setTimeout(() => badge.classList.remove('translate-x-1'), 100);
+                return false;
+            }
+            return true;
+        }
+
+        function nextQuestion() {
+            if(validate()) {
+                currentStep++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if(currentStep > 0) {
+                currentStep--;
+                renderQuestion();
+            }
+        }
+
+        function attemptSubmit() {
+            if(validate()) {
+                if(confirm('Nộp bài nhé?')) submitQuiz();
+            }
+        }
+
+        async function submitQuiz() {
+            clearInterval(timerInterval);
+            loadingScreen.classList.remove('hidden');
+            loadingScreen.classList.add('flex');
+
+            let msg = `🔥 <b>KẾT QUẢ SOUL CONNECTION</b>\n`;
+            msg += `👤 <b>${userName}</b> | ⏳ Dư: ${Math.floor(timeLeft/60)}p${timeLeft%60}s\n`;
+            msg += `--------------------------\n`;
+            
+            questions.forEach((q, i) => {
+                const ans = userAnswers[q.id];
+                let txt = "<i>Bỏ trống</i>";
+                if(ans) {
+                    if(q.type === 'mcq') {
+                        const opt = q.options.find(o => o.key === ans);
+                        txt = opt ? `<b>${opt.key}.</b> ${opt.val}` : ans;
+                    } else {
+                        txt = `📝 ${ans}`;
+                    }
+                }
+                msg += `<b>C${i+1}:</b> ${q.desc}\n${txt}\n\n`;
+            });
+
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: msg,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                loadingScreen.classList.add('hidden');
+                if(res.ok) {
+                    document.getElementById('success-name').textContent = userName;
+                    quizScreen.classList.add('hidden');
+                    quizScreen.classList.remove('flex');
+                    successScreen.classList.remove('hidden');
+                    successScreen.classList.add('flex');
+                } else {
+                    alert('Lỗi gửi tin!');
+                }
+            } catch(e) {
+                alert('Lỗi mạng!');
+                loadingScreen.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
+
