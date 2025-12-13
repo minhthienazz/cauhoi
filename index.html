@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Hồ Sơ Tâm Lý - Deep Soul v9</title>
+    
+    <!-- LIBRARIES -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS STYLES -->
+    <style>
+        :root {
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --ios-blue: #007AFF;
+            --ios-green: #34C759;
+            --ios-red: #FF3B30;
+            --ios-gray: #8E8E93;
+            --ios-text: #1C1C1E;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: var(--ios-bg);
+            height: 100dvh; width: 100vw; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0; padding: 0; color: var(--ios-text);
+        }
+
+        .app-container {
+            background: var(--ios-card);
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                width: 100%; max-width: 480px; height: 92vh; max-height: 900px;
+                border-radius: 44px; box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.3);
+                border: 8px solid #1a1a1a;
+            }
+        }
+
+        .scroll-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding: 24px 20px; padding-bottom: 140px;
+            -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+        }
+
+        .footer-fixed {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.9);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 16px 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 50;
+        }
+
+        /* UI ELEMENTS */
+        .ios-input {
+            background: #F2F2F7; border: none; border-radius: 12px;
+            font-size: 17px; transition: all 0.2s ease;
+        }
+        .ios-input:focus { background: #E5E5EA; outline: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
+        .input-error { background: #FFF0F0 !important; box-shadow: inset 0 0 0 1px #FF3B30 !important; }
+
+        .option-card {
+            background: white; border: 1px solid #E5E5EA; border-radius: 16px;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1); transform: translateZ(0);
+        }
+        .option-card:active { transform: scale(0.97); background-color: #F2F2F7; }
+        
+        .option-selected {
+            background: #007AFF !important; border-color: #007AFF !important;
+            color: white !important; box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+        }
+        .option-selected .circle-check { border-color: white; background: rgba(255,255,255,0.3); }
+        .option-selected .opt-text { color: white; font-weight: 600; }
+
+        /* Report Styles */
+        .report-section { margin-bottom: 24px; background: #fff; border-radius: 20px; padding: 20px; border: 1px solid #F2F2F7; }
+        .report-header { font-size: 13px; font-weight: 700; color: #8E8E93; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .bullet-point { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 14px; line-height: 1.5; color: #3A3A3C; }
+        .bullet-point i { margin-right: 10px; margin-top: 4px; font-size: 12px; }
+        
+        /* Stats Bar */
+        .stat-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .stat-label { width: 80px; font-size: 12px; font-weight: 600; color: #333; }
+        .stat-track { flex: 1; height: 6px; background: #F2F2F7; border-radius: 3px; overflow: hidden; margin: 0 10px; }
+        .stat-fill { height: 100%; border-radius: 3px; }
+        .stat-val { width: 30px; text-align: right; font-size: 11px; font-weight: 600; color: #8E8E93; }
+
+        /* Animation */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .fade-enter { animation: fadeIn 0.5s ease-out; }
+
+        .char-counter { font-size: 11px; font-weight: 600; color: #8E8E93; }
+        input, textarea { user-select: text; }
+        .ios-spinner { width: 32px; height: 32px; border: 3.5px solid rgba(0,0,0,0.1); border-top-color: #007AFF; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- SCREEN 1: WELCOME -->
+        <div id="welcome-screen" class="absolute inset-0 z-50 bg-white flex flex-col h-full fade-enter">
+            <div class="scroll-content flex flex-col items-center justify-center text-center">
+                <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[28px] flex items-center justify-center mb-6 shadow-xl shadow-indigo-200">
+                    <i class="fas fa-fingerprint text-5xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Hồ Sơ Tâm Lý</h1>
+                <p class="text-gray-500 mb-8 px-4 text-[15px] font-medium">Báo cáo phân tích chuyên sâu v9.0<br>
+                    <span id="continue-msg" class="hidden text-xs text-indigo-600 font-bold mt-2 bg-indigo-50 px-3 py-1 rounded-full"><i class="fas fa-history"></i> Khôi phục dữ liệu cũ</span>
+                </p>
+                <div class="w-full space-y-5 text-left bg-[#F9F9FB] p-6 rounded-[24px] border border-gray-100">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Họ tên</label>
+                        <input type="text" id="user-name" placeholder="Nhập tên của bạn..." class="ios-input w-full pl-4 pr-4 py-4 mt-1 font-semibold text-gray-900">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Liên hệ</label>
+                        <div class="mt-1 flex gap-2">
+                            <select id="contact-type" class="ios-input w-1/3 pl-3 pr-2 py-4 font-semibold text-gray-700 bg-white border border-gray-200"><option value="SĐT">SĐT</option><option value="Zalo">Zalo</option><option value="Fb">Fb</option></select>
+                            <input type="text" id="contact-value" placeholder="Thông tin..." class="ios-input flex-1 px-4 py-4 text-gray-900">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-fixed w-full">
+                <button onclick="startQuiz()" class="w-full bg-[#1C1C1E] text-white font-bold py-4 rounded-2xl shadow-xl active:scale-95 transition-transform text-[16px]">Bắt đầu phân tích</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: QUIZ -->
+        <div id="quiz-screen" class="hidden flex flex-col h-full relative bg-white">
+            <div class="flex-shrink-0 px-5 py-4 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex justify-between items-center z-10 sticky top-0">
+                <div class="flex items-center gap-3">
+                    <button id="btn-sound" onclick="toggleSound()" class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition"><i class="fas fa-volume-up"></i></button>
+                    <div class="flex flex-col"><span class="text-[10px] font-bold text-gray-400 uppercase">Ứng viên</span><span id="display-name" class="text-sm font-bold text-gray-900 truncate max-w-[120px]">User</span></div>
+                </div>
+                <div class="bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200"><span id="timer" class="text-sm font-mono font-bold">30:00</span></div>
+            </div>
+            <div class="w-full bg-gray-100 h-1.5 flex-shrink-0"><div id="progress-bar" class="bg-blue-600 h-1.5 rounded-r-full transition-all duration-500 ease-out" style="width: 0%"></div></div>
+            
+            <div class="scroll-content" id="scroll-container">
+                <div class="mb-6 fade-enter">
+                    <div class="flex justify-between items-end mb-3">
+                        <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-blue-100" id="part-label">PHẦN 1</span>
+                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-100" id="question-number">1/30</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 leading-snug mb-2" id="question-text">...</h2>
+                    <p id="question-hint" class="text-xs text-gray-500 font-medium hidden italic mt-1 flex items-center gap-1"><i class="fas fa-pen-nib"></i> <span id="hint-text"></span></p>
+                </div>
+                <div id="error-badge" class="hidden mb-4 p-3 bg-red-50 text-red-500 text-xs font-bold rounded-xl flex items-center gap-2 animate-shake border border-red-100"><i class="fas fa-exclamation-triangle"></i> <span id="error-text">Vui lòng trả lời</span></div>
+                <div id="options-area" class="space-y-3 pb-10"></div>
+            </div>
+
+            <div class="footer-fixed flex gap-3">
+                <button id="btn-prev" onclick="playSound('click'); prevQuestion()" class="w-14 h-14 rounded-2xl bg-[#F2F2F7] text-gray-500 flex items-center justify-center disabled:opacity-30 transition-all active:scale-90 shadow-sm border border-gray-200"><i class="fas fa-arrow-left"></i></button>
+                <button id="btn-next" onclick="playSound('click'); nextQuestion()" class="flex-1 h-14 rounded-2xl bg-[#1C1C1E] text-white font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all text-sm">Tiếp theo</button>
+                <button id="btn-submit" onclick="playSound('click'); attemptSubmit()" class="hidden flex-1 h-14 rounded-2xl bg-blue-600 text-white font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all text-sm">Xem Báo Cáo <i class="fas fa-file-alt"></i></button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: LOADING -->
+        <div id="loading-screen" class="hidden absolute inset-0 z-[60] bg-white/95 backdrop-blur-xl flex-col items-center justify-center">
+            <div class="ios-spinner mb-6"></div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest mb-2">ĐANG PHÂN TÍCH</h3>
+            <p class="text-xs text-gray-500 font-medium animate-pulse">Tổng hợp dữ liệu hành vi...</p>
+        </div>
+
+        <!-- SCREEN 4: MASTER REPORT (NEW DESIGN) -->
+        <div id="result-screen" class="hidden absolute inset-0 z-50 bg-[#F2F2F7] flex flex-col h-full overflow-hidden fade-enter">
+            <div class="flex-shrink-0 px-5 py-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm z-20">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">BÁO CÁO TÂM LÝ</span>
+                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">CHUYÊN SÂU</span>
+            </div>
+
+            <div class="scroll-content pt-4 pb-24">
+                <!-- 1. PROFILE HEADER -->
+                <div class="report-section relative overflow-hidden text-center">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <div class="w-20 h-20 mx-auto bg-gray-900 rounded-full flex items-center justify-center mb-4 shadow-xl text-white text-3xl mt-2">
+                        <i id="res-icon" class="fas fa-user"></i>
+                    </div>
+                    <h1 id="res-title" class="text-xl font-black text-gray-900 mb-1 uppercase">...</h1>
+                    <p id="res-combo" class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">...</p>
+                    <p id="res-desc" class="text-sm text-gray-600 leading-relaxed text-justify font-medium bg-gray-50 p-4 rounded-xl border border-gray-100">...</p>
+                </div>
+
+                <!-- 2. STATS CHART -->
+                <div class="report-section">
+                    <h3 class="report-header"><i class="fas fa-chart-pie text-blue-500 mr-2"></i>Biểu Đồ Xu Hướng</h3>
+                    <div id="stats-container"></div> <!-- Render JS -->
+                </div>
+
+                <!-- 3. DETAILED ANALYSIS (NEW) -->
+                <div class="report-section">
+                    <h3 class="report-header"><i class="fas fa-search text-purple-500 mr-2"></i>Phân Tích Chi Tiết</h3>
+                    
+                    <div class="mb-4">
+                        <h4 class="text-xs font-bold text-green-600 mb-2 uppercase flex items-center"><i class="fas fa-plus-circle mr-1"></i> Điểm Mạnh</h4>
+                        <div id="res-strong" class="space-y-2"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="text-xs font-bold text-red-500 mb-2 uppercase flex items-center"><i class="fas fa-minus-circle mr-1"></i> Điểm Yếu & Rủi Ro</h4>
+                        <div id="res-weak" class="space-y-2"></div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-blue-600 mb-2 uppercase flex items-center"><i class="fas fa-lightbulb mr-1"></i> Lời Khuyên Phát Triển</h4>
+                        <div id="res-advice" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <!-- 4. OPEN ANSWERS REVIEW -->
+                <div class="report-section">
+                    <h3 class="report-header"><i class="fas fa-book-open text-orange-500 mr-2"></i>Hồ Sơ Tự Luận</h3>
+                    <div id="open-answers-review" class="space-y-4">
+                        <!-- Render JS -->
+                    </div>
+                </div>
+
+                <div class="text-center text-[10px] text-gray-400 mb-4">
+                    Kết quả này chỉ hiển thị cho bạn.<br>Admin chỉ nhận được dữ liệu thô để lưu trữ.
+                </div>
+            </div>
+
+            <div class="footer-fixed w-full flex gap-3">
+                <button onclick="clearAndReload()" class="w-full bg-white text-red-500 font-bold py-4 rounded-2xl shadow-md active:scale-95 transition-transform text-sm uppercase border border-gray-200">
+                    <i class="fas fa-redo mr-2"></i> Làm bài mới
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // CONFIG
+        const TELEGRAM_TOKEN = "6452107579:AAHD9JfgCbnzN8c2s8mBq9beyTXA7plmnIQ"; 
+        const ADMIN_CHAT_ID = "2028093357";
+        const STORAGE_KEY = 'deep_soul_v9_master';
+
+        // AUDIO
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            osc.connect(g); g.connect(audioCtx.destination);
+            if (type === 'pop') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                g.gain.setValueAtTime(0.3, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                g.gain.setValueAtTime(0.05, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.03);
+            }
+        }
+
+        // --- FULL DATASET (UPDATED FROM PDF) ---
+        const questions = [
+            // MCQ (20)
+            { id: 1, type: 'mcq', text: "Trong một buổi tiệc đông người, bạn thường:", options: [{k:'A', v:"Là tâm điểm, chủ động bắt chuyện."}, {k:'B', v:"Chỉ trò chuyện sâu với 1-2 người quen."}, {k:'C', v:"Quan sát từ xa và phân tích tình huống."}, {k:'D', v:"Cảm thấy muốn về sớm hoặc tìm không gian riêng."}] },
+            { id: 2, type: 'mcq', text: "Khi gặp một vấn đề hóc búa tại nơi làm việc:", options: [{k:'A', v:"Ra quyết định và hành động ngay lập tức."}, {k:'B', v:"Tìm người hỗ trợ hoặc hỏi ý kiến tập thể."}, {k:'C', v:"Tự mình mày mò, phân tích dữ liệu trước."}, {k:'D', v:"Tìm cách né tránh hoặc làm việc khác dễ hơn."}] },
+            { id: 3, type: 'mcq', text: "Quan điểm về quy tắc và luật lệ?", options: [{k:'A', v:"Là công cụ để quản lý người khác."}, {k:'B', v:"Cần thiết để duy trì sự hòa hợp."}, {k:'C', v:"Phải tuân thủ tuyệt đối và chính xác."}, {k:'D', v:"Kìm hãm sự sáng tạo và tự do."}] },
+            { id: 4, type: 'mcq', text: "Khi bạn than vãn về cùng một vấn đề lần thứ 10:", options: [{k:'A', v:"Thẳng thắn chỉ ra lỗi sai để sửa."}, {k:'B', v:"Vẫn kiên nhẫn lắng nghe và an ủi."}, {k:'C', v:"Đưa ra giải pháp logic dứt điểm."}, {k:'D', v:"Lảng sang chuyện khác vui hơn."}] },
+            { id: 5, type: 'mcq', text: "Kỳ nghỉ lý tưởng của bạn?", options: [{k:'A', v:"Thám hiểm, chinh phục thử thách."}, {k:'B', v:"Nghỉ dưỡng bên gia đình, người thân."}, {k:'C', v:"Tham quan di tích lịch sử, văn hóa."}, {k:'D', v:"Đi phượt tự do, không kế hoạch."}] },
+            { id: 6, type: 'mcq', text: "Cơ sở đưa ra quyết định quan trọng?", options: [{k:'A', v:"Mục tiêu và kết quả đạt được."}, {k:'B', v:"Cảm xúc và tác động đến mọi người."}, {k:'C', v:"Số liệu, bằng chứng thực tế."}, {k:'D', v:"Trực giác và hứng thú nhất thời."}] },
+            { id: 7, type: 'mcq', text: "Bạn thấy mình là người:", options: [{k:'A', v:"Hướng tới tương lai và tham vọng."}, {k:'B', v:"Sống vì người khác và tình cảm."}, {k:'C', v:"Cẩn trọng và thực tế."}, {k:'D', v:"Sống cho hiện tại và trải nghiệm."}] },
+            { id: 8, type: 'mcq', text: "Mục tiêu trong tranh luận?", options: [{k:'A', v:"Chiến thắng và khẳng định vị thế."}, {k:'B', v:"Giữ hòa khí, tránh xung đột."}, {k:'C', v:"Tìm ra chân lý đúng sai rõ ràng."}, {k:'D', v:"Thuyết phục người khác theo ý mình."}] },
+            { id: 9, type: 'mcq', text: "Suy nghĩ khi thấy người ăn xin?", options: [{k:'A', v:"Tại sao họ không nỗ lực làm việc?"}, {k:'B', v:"Tội nghiệp, cần giúp đỡ họ."}, {k:'C', v:"Có khi nào là lừa đảo không?"}, {k:'D', v:"Lướt qua, ai cũng có số phận riêng."}] },
+            { id: 10, type: 'mcq', text: "Không gian làm việc của bạn?", options: [{k:'A', v:"Sang trọng, thể hiện quyền lực."}, {k:'B', v:"Ấm cúng, có ảnh người thân."}, {k:'C', v:"Gọn gàng, ngăn nắp, khoa học."}, {k:'D', v:"Độc đáo, phá cách, lộn xộn."}] },
+            { id: 11, type: 'mcq', text: "Nếu trúng số 10 tỷ, bạn làm gì?", options: [{k:'A', v:"Đầu tư lớn hoặc mua đồ xa xỉ."}, {k:'B', v:"Chia sẻ cho gia đình, từ thiện."}, {k:'C', v:"Gửi tiết kiệm, tính toán kỹ lưỡng."}, {k:'D', v:"Đi du lịch vòng quanh thế giới."}] },
+            { id: 12, type: 'mcq', text: "Nỗi sợ lớn nhất?", options: [{k:'A', v:"Thất bại, mất mặt, bị coi thường."}, {k:'B', v:"Cô đơn, bị mọi người xa lánh."}, {k:'C', v:"Sai lầm, hỗn loạn, thiếu kiểm soát."}, {k:'D', v:"Bị ràng buộc, mất tự do."}] },
+            { id: 13, type: 'mcq', text: "Phản ứng khi xem phim buồn?", options: [{k:'A', v:"Khó chịu nếu nhân vật yếu đuối."}, {k:'B', v:"Khóc ngon lành, đồng cảm sâu sắc."}, {k:'C', v:"Phân tích kịch bản và diễn xuất."}, {k:'D', v:"Thấy bình thường, phim thôi mà."}] },
+            { id: 14, type: 'mcq', text: "Bạn có hay trễ hẹn không?", options: [{k:'A', v:"Không, tôi ghét sự chậm trễ."}, {k:'B', v:"Thỉnh thoảng, nếu bận giúp ai đó."}, {k:'C', v:"Không bao giờ, tôi luôn đến sớm."}, {k:'D', v:"Thường xuyên, tôi hay quên giờ."}] },
+            { id: 15, type: 'mcq', text: "Người khác đánh giá bạn thế nào?", options: [{k:'A', v:"Mạnh mẽ, lãnh đạo, hơi áp đặt."}, {k:'B', v:"Thân thiện, tốt bụng, dễ mến."}, {k:'C', v:"Thông minh, chi tiết, khó tính."}, {k:'D', v:"Vui vẻ, sáng tạo, hơi lập dị."}] },
+            { id: 16, type: 'mcq', text: "Khi tức giận tột độ?", options: [{k:'A', v:"Bùng nổ, la hét, đập đồ."}, {k:'B', v:"Khóc lóc, buồn bã, im lặng."}, {k:'C', v:"Lạnh lùng, nói lý lẽ sắc bén."}, {k:'D', v:"Châm chọc, mỉa mai, bỏ đi."}] },
+            { id: 17, type: 'mcq', text: "Quan điểm về sự thay đổi?", options: [{k:'A', v:"Thích, đó là cơ hội để tiến lên."}, {k:'B', v:"Lo lắng, thích sự ổn định hơn."}, {k:'C', v:"Chấp nhận nếu có kế hoạch trước."}, {k:'D', v:"Rất thích, ghét sự nhàm chán."}] },
+            { id: 18, type: 'mcq', text: "So sánh bản thân trên MXH?", options: [{k:'A', v:"Thấy ghen tị nếu họ thành công hơn."}, {k:'B', v:"Vui mừng cho hạnh phúc của họ."}, {k:'C', v:"Phân tích xem họ làm thế nào."}, {k:'D', v:"Không quan tâm, tôi sống đời tôi."}] },
+            { id: 19, type: 'mcq', text: "Năng lượng của bạn giống hình ảnh nào?", options: [{k:'A', v:"Ngọn Lửa (Nhiệt huyết, thiêu đốt)."}, {k:'B', v:"Dòng Nước (Êm đềm, sâu lắng)."}, {k:'C', v:"Tảng Đá (Vững chãi, cứng rắn)."}, {k:'D', v:"Cơn Gió (Tự do, hay thay đổi)."}] },
+            { id: 20, type: 'mcq', text: "Câu châm ngôn hợp với bạn nhất?", options: [{k:'A', v:"Không có gì là không thể."}, {k:'B', v:"Sống là để yêu thương."}, {k:'C', v:"Chậm mà chắc."}, {k:'D', v:"YOLO - Bạn chỉ sống một lần."}] },
+            // OPEN (10) - WITH CATEGORY
+            { id: 21, type: 'open', text: "Nếu quay về tuổi thơ, bạn sẽ nói gì với chính mình lúc nhỏ?", category: "ĐỨA TRẺ BÊN TRONG & HỐI TIẾC", placeholder: "Tôi sẽ nói...", min: 10, max: 300 },
+            { id: 22, type: 'open', text: "3 điều quan trọng nhất cuộc đời mà nếu thiếu, bạn thấy vô nghĩa?", category: "HỆ THỐNG GIÁ TRỊ CỐT LÕI", placeholder: "1... 2... 3...", min: 10, max: 200 },
+            { id: 23, type: 'open', text: "Mô tả bản thân bằng 3 từ tích cực và 3 từ tiêu cực.", category: "TỰ NHẬN THỨC", placeholder: "Tích cực: ... \nTiêu cực: ...", min: 10, max: 200 },
+            { id: 24, type: 'open', text: "Sắp xếp 5 con vật sau theo thứ tự THÍCH NHẤT: Bò, Hổ, Cừu, Ngựa, Lợn.", category: "ƯU TIÊN VÔ THỨC", placeholder: "Thứ tự: ...", min: 5, max: 150 },
+            { id: 25, type: 'open', text: "Nếu ngày mai mất giọng nói vĩnh viễn, câu cuối cùng bạn nói là gì?", category: "THÔNG ĐIỆP CHƯA NÓI", placeholder: "Tôi sẽ nói...", min: 5, max: 200 },
+            { id: 26, type: 'open', text: "Hãy mô tả một ngày hoàn hảo đối với bạn.", category: "ĐỊNH NGHĨA HẠNH PHÚC", placeholder: "Sáng thức dậy...", min: 20, max: 400 },
+            { id: 27, type: 'open', text: "Khi buồn, bạn thường làm gì để tự an ủi?", category: "CƠ CHẾ TỰ CHỮA LÀNH", placeholder: "Tôi thường...", min: 10, max: 200 },
+            { id: 28, type: 'open', text: "Nơi nào khiến bạn cảm thấy an toàn và bình yên nhất?", category: "CHỐN TRÚ ẨN TÂM HỒN", placeholder: "Đó là...", min: 5, max: 200 },
+            { id: 29, type: 'open', text: "Nếu cảm xúc hiện tại là một loại thời tiết, đó sẽ là gì?", category: "TRẠNG THÁI HIỆN TẠI", placeholder: "Giống như...", min: 5, max: 150 },
+            { id: 30, type: 'open', text: "Viết một dòng tin nhắn gửi cho chính bạn trong 5 năm tới.", category: "TẦM NHÌN TƯƠNG LAI", placeholder: "Gửi tôi...", min: 15, max: 300 }
+        ];
+
+        // --- ANALYSIS DATA (RICH CONTENT FROM PDF) ---
+        const archetypes = {
+            'A': { 
+                title: "NGƯỜI THỦ LĨNH / HÀNH ĐỘNG", 
+                icon: "fa-chess-king", color: "text-red-500",
+                desc: "Bạn thuộc nhóm Dominance. Bạn mạnh mẽ, quyết đoán và thích kiểm soát. Bạn coi trọng kết quả hơn cảm xúc và sẵn sàng chấp nhận rủi ro. Bạn có tố chất lãnh đạo bẩm sinh nhưng đôi khi có thể hơi áp đặt.",
+                strong: ["Quyết đoán, không dao động.", "Hiệu suất công việc cao.", "Dũng cảm đương đầu thử thách.", "Độc lập mạnh mẽ."],
+                weak: ["Cứng rắn, thiếu linh hoạt.", "Dễ xem thường cảm xúc người khác.", "Khó nghe lời khuyên.", "Dễ rơi vào cực đoan thắng-thua."],
+                advice: ["Học cách lắng nghe và thấu hiểu.", "Chậm lại một nhịp trước khi ra lệnh.", "Quan tâm đến cảm xúc của đồng đội."]
+            },
+            'B': { 
+                title: "NGƯỜI CHĂM SÓC / HÒA GIẢI", 
+                icon: "fa-hand-holding-heart", color: "text-green-600",
+                desc: "Bạn thuộc nhóm Influence. Bạn ôn hòa, sâu sắc và rất trọng tình cảm. Bạn lắng nghe nhiều hơn nói và luôn đặt lợi ích người khác lên trên. Bạn là người giữ hòa khí tuyệt vời.",
+                strong: ["Xây dựng quan hệ tốt, được yêu mến.", "Nhạy cảm với nhu cầu người khác.", "Tốt bụng, đáng tin cậy.", "Khả năng an ủi xuất sắc."],
+                weak: ["Dễ kiệt sức vì lo cho người khác.", "Khó từ chối, dễ bị lợi dụng.", "Hay tự trách bản thân.", "Sợ xung đột, nhường nhịn thái quá."],
+                advice: ["Học cách nói 'KHÔNG' và đặt ranh giới.", "Yêu thương bản thân trước khi yêu người khác.", "Dám bày tỏ quan điểm cá nhân."]
+            },
+            'C': { 
+                title: "NGƯỜI PHÂN TÍCH / LOGIC", 
+                icon: "fa-brain", color: "text-blue-500",
+                desc: "Bạn thuộc nhóm Conscientiousness. Bạn sống bằng lý trí, dữ liệu và sự chuẩn bị. Bạn cầu toàn, cẩn thận và suy nghĩ sâu sắc. Bạn rất đáng tin cậy trong công việc đòi hỏi sự chính xác.",
+                strong: ["Tư duy phân tích sâu sắc.", "Chất lượng công việc hoàn hảo.", "Trung thực, không nói dối.", "Luôn có kế hoạch dự phòng."],
+                weak: ["Cầu toàn thái quá dẫn đến lo âu.", "Bỏ lỡ cơ hội vì tính toán quá lâu.", "Khép kín, khó tin tưởng người khác.", "Hay đa nghi."],
+                advice: ["Hành động ngay cả khi chưa hoàn hảo.", "Mở lòng và tin tưởng hơn.", "Chấp nhận rủi ro như một phần cuộc sống."]
+            },
+            'D': { 
+                title: "NGƯỜI TỰ DO / NGHỆ SĨ", 
+                icon: "fa-wind", color: "text-yellow-500",
+                desc: "Bạn thuộc nhóm Openness. Bạn phóng khoáng, sáng tạo và ghét sự gò bó. Bạn sống theo cảm xúc và trực giác, mang lại sự mới mẻ. Tuy nhiên, bạn cũng dễ thay đổi và khó nắm bắt.",
+                strong: ["Sáng tạo không giới hạn.", "Linh hoạt, thích nghi nhanh.", "Mang lại niềm vui và năng lượng mới.", "Dám nghĩ khác, làm khác."],
+                weak: ["Thiếu ổn định, cả thèm chóng chán.", "Khó cam kết lâu dài.", "Vô kỷ luật, tùy hứng.", "Khó hoàn thành việc dở dang."],
+                advice: ["Rèn luyện tính kỷ luật tự giác.", "Cam kết với mục tiêu đến cùng.", "Học cách kiên nhẫn."]
+            }
+        };
+
+        const combinations = {
+            'AB': "Lãnh Đạo Nhân Ái (Vừa quyết đoán vừa biết quan tâm)",
+            'AC': "Lãnh Đạo Lý Trí (Quyết đoán kết hợp với sự cẩn trọng)",
+            'AD': "Doanh Nhân Mạo Hiểm (Dũng cảm và đầy sáng tạo)",
+            'BC': "Tư Vấn Viên Tận Tâm (Quan tâm sâu sắc và chuyên môn cao)",
+            'BD': "Người Bạn Chân Thành (Chu đáo và đầy lòng trắc ẩn)",
+            'CD': "Nhà Sáng Tạo Lập Dị (Sáng tạo nhưng có tính toán kỹ lưỡng)"
+        };
+
+        // VARS
+        let currentStep = 0, userAnswers = {}, userName = "", userContactInfo = "", timeLeft = 30*60, timerInterval, isSoundOn = true;
+
+        // LOAD
+        window.onload = function() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if(data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    userName = parsed.userName||""; userContactInfo = parsed.userContactInfo||""; userAnswers = parsed.userAnswers||{}; currentStep = parsed.currentStep||0;
+                    document.getElementById('user-name').value = userName;
+                    if(userContactInfo) { const parts=userContactInfo.split(': '); if(parts.length>1) { document.getElementById('contact-type').value=parts[0]; document.getElementById('contact-value').value=parts[1]; } }
+                    if(userName) document.getElementById('continue-msg').classList.remove('hidden');
+                } catch(e) { localStorage.removeItem(STORAGE_KEY); }
+            }
+        };
+        function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify({ userName, userContactInfo, userAnswers, currentStep })); }
+
+        // APP FLOW
+        function startQuiz() {
+            playSound('click');
+            const name = document.getElementById('user-name').value.trim();
+            const cType = document.getElementById('contact-type').value, cVal = document.getElementById('contact-value').value.trim();
+            if(!name) { document.getElementById('user-name').classList.add('input-error','animate-shake'); setTimeout(()=>document.getElementById('user-name').classList.remove('animate-shake'),500); return; }
+            if(cVal && !((cType==='SĐT'||cType==='Zalo') ? /^(0\d{9})$/.test(cVal) : cVal.length>2)) { document.getElementById('contact-value').classList.add('input-error','animate-shake'); setTimeout(()=>document.getElementById('contact-value').classList.remove('animate-shake'),500); return; }
+            
+            userName = name; userContactInfo = cVal ? `${cType}: ${cVal}` : "Không";
+            document.getElementById('display-name').textContent = userName;
+            if(isSoundOn) window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+            
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('quiz-screen').classList.add('flex');
+            renderQuestion(); startTimer(); saveProgress();
+        }
+
+        function toggleSound() { isSoundOn=!isSoundOn; document.getElementById('btn-sound').innerHTML=isSoundOn?'<i class="fas fa-volume-up"></i>':'<i class="fas fa-volume-mute"></i>'; document.getElementById('btn-sound').classList.toggle('text-blue-600'); if(isSoundOn) speakText(questions[currentStep].text); else window.speechSynthesis.cancel(); }
+        function speakText(t) { if(!isSoundOn)return; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='vi-VN'; window.speechSynthesis.speak(u); }
+        function startTimer() { timerInterval=setInterval(()=>{ timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById('timer').textContent=`${m}:${s<10?'0'+s:s}`; if(timeLeft<=0) submitQuiz(); },1000); }
+
+        function renderQuestion() {
+            const q = questions[currentStep];
+            const area = document.getElementById('options-area');
+            area.innerHTML = ''; area.className="space-y-3 pb-10";
+            document.getElementById('error-badge').classList.add('hidden');
+            
+            document.getElementById('question-number').textContent = `${currentStep+1}/${questions.length}`;
+            document.getElementById('question-text').textContent = q.text;
+            document.getElementById('progress-bar').style.width = `${(currentStep/questions.length)*100}%`;
+            speakText(q.text);
+
+            if(q.type === 'mcq') {
+                document.getElementById('part-label').textContent = "PHẦN 1: TRẮC NGHIỆM";
+                document.getElementById('part-label').className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-blue-100";
+                document.getElementById('question-hint').classList.add('hidden');
+                q.options.forEach(opt => {
+                    const sel = userAnswers[q.id] === opt.k;
+                    const el = document.createElement('div');
+                    el.className = `option-card p-4 cursor-pointer flex items-center gap-4 ${sel?'option-selected':''}`;
+                    el.onclick = () => { playSound('pop'); userAnswers[q.id]=opt.k; saveProgress(); renderQuestion(); setTimeout(nextQuestion,400); };
+                    el.innerHTML = `<div class="circle-check w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 bg-white transition-all ${sel?'border-transparent':'border-gray-200'}">${sel?'<i class="fas fa-check text-blue-600 text-xs"></i>':'<span class="text-[10px] font-bold text-gray-400">'+opt.k+'</span>'}</div><span class="opt-text text-[15px] font-medium leading-relaxed text-gray-700 flex-1">${opt.v}</span>`;
+                    area.appendChild(el);
+                });
+            } else {
+                document.getElementById('part-label').textContent = "PHẦN 2: TỰ LUẬN";
+                document.getElementById('part-label').className="inline-block px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-purple-100";
+                document.getElementById('question-hint').classList.remove('hidden');
+                document.getElementById('hint-text').textContent = `Chủ đề: ${q.category} (${q.min}-${q.max} ký tự)`;
+                const wrp = document.createElement('div');
+                wrp.innerHTML = `<textarea id="open-ans" maxlength="${q.max}" class="ios-input w-full p-4 h-48 resize-none text-sm leading-relaxed text-gray-800 border-2 border-transparent focus:border-blue-200" placeholder="${q.placeholder}"></textarea><div class="text-right mt-2"><span id="char-count" class="char-counter">0/${q.max}</span></div>`;
+                area.appendChild(wrp);
+                const txt = wrp.querySelector('textarea');
+                txt.value = userAnswers[q.id]||"";
+                const cnt = wrp.querySelector('#char-count');
+                updateChar(txt, cnt, q.min, q.max);
+                txt.oninput = (e) => { userAnswers[q.id]=e.target.value; updateChar(e.target, cnt, q.min, q.max); saveProgress(); };
+            }
+            updateButtons();
+        }
+
+        function updateChar(input, el, min, max) {
+            const l = input.value.length; el.textContent=`${l}/${max}`;
+            el.className = l<min ? "char-counter text-red-500" : "char-counter text-green-600";
+        }
+
+        function updateButtons() {
+            document.getElementById('btn-prev').disabled = currentStep === 0;
+            const isLast = currentStep === questions.length-1;
+            document.getElementById('btn-next').classList.toggle('hidden', isLast);
+            document.getElementById('btn-submit').classList.toggle('hidden', !isLast);
+            document.getElementById('btn-submit').classList.toggle('flex', isLast);
+        }
+
+        function nextQuestion() {
+            const q = questions[currentStep]; const ans = userAnswers[q.id]||"";
+            if(q.type==='mcq' && !ans) return showError("Vui lòng chọn đáp án");
+            if(q.type==='open' && ans.length<q.min) return showError(`Tối thiểu ${q.min} ký tự`);
+            if(currentStep<questions.length-1) { currentStep++; renderQuestion(); }
+        }
+        function prevQuestion() { if(currentStep>0) { currentStep--; renderQuestion(); } }
+        function attemptSubmit() {
+            const q = questions[currentStep], ans = userAnswers[q.id]||"";
+            if(q.type==='open' && ans.length<q.min) return showError(`Tối thiểu ${q.min} ký tự`);
+            submitQuiz();
+        }
+        function showError(msg) {
+            const b = document.getElementById('error-badge'); b.classList.remove('hidden');
+            document.getElementById('error-text').textContent = msg;
+            b.classList.add('animate-shake'); setTimeout(()=>b.classList.remove('animate-shake'),500);
+        }
+
+        async function submitQuiz() {
+            clearInterval(timerInterval); window.speechSynthesis.cancel();
+            document.getElementById('quiz-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('flex');
+            document.getElementById('loading-screen').classList.remove('hidden'); document.getElementById('loading-screen').classList.add('flex');
+
+            try {
+                // 1. ANALYZE DATA
+                let counts = {A:0, B:0, C:0, D:0};
+                let totalMCQ = 0;
+                let openAnswersHTML = "";
+
+                questions.forEach(q => {
+                    const ans = userAnswers[q.id];
+                    if(q.type === 'mcq') {
+                        if(ans) { counts[ans]++; totalMCQ++; }
+                    } else {
+                        // Build Open Answers Report HTML
+                        openAnswersHTML += `
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">${q.category}</div>
+                                <div class="text-xs font-bold text-gray-800 mb-2">${q.text}</div>
+                                <div class="text-sm text-gray-600 italic bg-white p-3 rounded-lg border border-dashed border-gray-200">"${escapeHtml(ans)}"</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                // Calculate Percentages
+                const pctA = Math.round((counts.A/totalMCQ)*100)||0;
+                const pctB = Math.round((counts.B/totalMCQ)*100)||0;
+                const pctC = Math.round((counts.C/totalMCQ)*100)||0;
+                const pctD = Math.round((counts.D/totalMCQ)*100)||0;
+
+                // Determine Main/Sub Types
+                const sorted = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+                const main = sorted[0]; const sub = sorted[1];
+                const comboKey = [main, sub].sort().join('');
+                let comboText = combinations[comboKey] || "Độc lập";
+                if(counts[sub] < 3) comboText = `Thuần ${main}`;
+
+                const data = archetypes[main];
+
+                // 2. SEND TO TELEGRAM (RAW ONLY)
+                const now = new Date().toLocaleString('vi-VN');
+                let msg = `<b>📝 HỒ SƠ MỚI (v9.0)</b>\n⏰ ${now}\n👤 ${userName} (${userContactInfo})\n\n`;
+                questions.forEach((q,i) => {
+                    const a = userAnswers[q.id];
+                    if(q.type==='mcq') msg += `<b>C${i+1}:</b> ${a}\n`;
+                    else msg += `<b>C${i+1} [${q.category}]:</b> ${a}\n\n`;
+                });
+                await sendTelegramMessage(msg);
+
+                // 3. RENDER DETAILED REPORT (CLIENT SIDE)
+                document.getElementById('res-icon').className = `fas ${data.icon}`;
+                document.getElementById('res-title').textContent = data.title;
+                document.getElementById('res-combo').textContent = comboText;
+                document.getElementById('res-desc').textContent = data.desc;
+
+                // Render Strong/Weak/Advice lists
+                const createList = (items, color) => items.map(i => `<div class="bullet-point"><i class="fas fa-circle text-${color}-500"></i><span>${i}</span></div>`).join('');
+                document.getElementById('res-strong').innerHTML = createList(data.strong, 'green');
+                document.getElementById('res-weak').innerHTML = createList(data.weak, 'red');
+                document.getElementById('res-advice').innerHTML = createList(data.advice, 'blue');
+
+                // Render Charts
+                document.getElementById('stats-container').innerHTML = `
+                    <div class="stat-row"><span class="stat-label text-red-500">Thủ Lĩnh</span><div class="stat-track"><div class="stat-fill bg-red-500" style="width:${pctA}%"></div></div><span class="stat-val">${pctA}%</span></div>
+                    <div class="stat-row"><span class="stat-label text-green-600">Chăm Sóc</span><div class="stat-track"><div class="stat-fill bg-green-500" style="width:${pctB}%"></div></div><span class="stat-val">${pctB}%</span></div>
+                    <div class="stat-row"><span class="stat-label text-blue-500">Phân Tích</span><div class="stat-track"><div class="stat-fill bg-blue-500" style="width:${pctC}%"></div></div><span class="stat-val">${pctC}%</span></div>
+                    <div class="stat-row"><span class="stat-label text-yellow-500">Tự Do</span><div class="stat-track"><div class="stat-fill bg-yellow-500" style="width:${pctD}%"></div></div><span class="stat-val">${pctD}%</span></div>
+                `;
+
+                // Render Open Answers
+                document.getElementById('open-answers-review').innerHTML = openAnswersHTML;
+
+                playSound('pop'); localStorage.removeItem(STORAGE_KEY);
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    document.getElementById('result-screen').classList.remove('hidden');
+                    document.getElementById('result-screen').classList.add('flex');
+                }, 1500);
+
+            } catch(e) {
+                alert('Lỗi kết nối mạng!');
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                document.getElementById('quiz-screen').classList.add('flex');
+            }
+        }
+
+        async function sendTelegramMessage(text) {
+            const MAX = 4000;
+            while(text.length > 0) {
+                let chunk = text.length > MAX ? text.substring(0, text.lastIndexOf('\n', MAX)) : text;
+                if(!chunk) chunk = text.substring(0, MAX);
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: chunk, parse_mode: 'HTML' })
+                });
+                text = text.substring(chunk.length);
+            }
+        }
+
+        function escapeHtml(text) { return (text||"").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+        function clearAndReload() { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    </script>
+</body>
+</html>
+
+
