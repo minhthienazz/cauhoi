@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa 12 - Chương 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Be Vietnam Pro"', 'sans-serif'],
+                        serif: ['"Merriweather"', 'serif'],
+                        chem: ['"Times New Roman"', 'serif'],
+                    },
+                    colors: {
+                        'paper': '#fdfbf7',
+                        'chem-blue': '#2563eb',
+                        'chem-red': '#dc2626',
+                        'note-yellow': '#fef3c7',
+                        'note-green': '#d1fae5',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .a4-page {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 20px rgba(0,0,0,0.05);
+            min-height: 29.7cm; /* A4 ratio roughly */
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .chem-formula {
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 0.5px;
+        }
+        .reaction-box {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Times New Roman', serif;
+        }
+        .highlight-text {
+            background: linear-gradient(120deg, #fde68a 0%, #fde68a 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 88%;
+            padding: 0 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header Navigation -->
+    <header class="bg-white shadow-sm z-20 flex-none">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-600 text-white p-1.5 rounded-lg">
+                    <i data-lucide="flask-conical" class="w-6 h-6"></i>
+                </div>
+                <h1 class="font-bold text-xl text-blue-900 tracking-tight">Hóa Học 12 <span class="text-blue-500 font-light">| Chương 3</span></h1>
+            </div>
+            
+            <!-- Tab Navigation (Desktop) -->
+            <nav class="hidden md:flex space-x-1 bg-gray-100 p-1 rounded-xl" id="desktopNav">
+                <!-- Rendered by JS -->
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-500 hover:text-blue-600" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+                <i data-lucide="menu" class="w-7 h-7"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu (Dropdown) -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1" id="mobileNav">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-2 sm:p-6 flex justify-center" id="mainScroll">
+        <div class="w-full max-w-4xl bg-paper a4-page rounded-none sm:rounded-lg p-6 sm:p-10 md:p-12 relative transition-all duration-300" id="contentArea">
+            <!-- Content will be injected here -->
+        </div>
+    </main>
+
+    <!-- Quick Fab Button (Scroll to top) -->
+    <button onclick="document.getElementById('mainScroll').scrollTo({top:0, behavior:'smooth'})" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-transform hover:scale-110 z-30">
+        <i data-lucide="arrow-up" class="w-6 h-6"></i>
+    </button>
+
+    <script>
+        // --- DỮ LIỆU BÀI HỌC (CHƯƠNG 3 ONLY) ---
+        const lessons = [
+            {
+                id: 'amin',
+                title: 'BÀI 1: AMIN',
+                subtitle: 'Khái niệm, Phân loại, Đồng phân, Tính chất',
+                color: 'blue',
+                content: `
+                    <!-- Section 1 -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-blue-800 border-b-2 border-blue-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-blue-100 text-blue-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">1</span>
+                            Khái niệm & Phân loại
+                        </h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <h3 class="font-bold text-gray-700 mb-2">Định nghĩa</h3>
+                                <p>Khi thay thế nguyên tử H trong phân tử <span class="chem-formula font-bold text-blue-600">NH<sub>3</sub></span> bằng gốc hiđrocacbon, ta thu được Amin.</p>
+                                <div class="mt-3 text-center text-gray-500 italic text-sm">NH<sub>3</sub> → R-NH<sub>2</sub></div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <h3 class="font-bold text-gray-700 mb-2">Bậc của Amin</h3>
+                                <p class="text-sm mb-2">Tính bằng số nguyên tử H bị thay thế.</p>
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-center"><span class="w-16 font-bold text-blue-600">Bậc 1:</span> <span class="chem-formula">R-NH<sub>2</sub></span> (CH<sub>3</sub>NH<sub>2</sub>)</li>
+                                    <li class="flex items-center"><span class="w-16 font-bold text-blue-600">Bậc 2:</span> <span class="chem-formula">R-NH-R'</span> (CH<sub>3</sub>NHCH<sub>3</sub>)</li>
+                                    <li class="flex items-center"><span class="w-16 font-bold text-blue-600">Bậc 3:</span> <span class="chem-formula">R-N(R')R''</span> ((CH<sub>3</sub>)<sub>3</sub>N)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                            <h4 class="font-bold text-yellow-800 text-sm uppercase mb-1">Cách gọi tên (Quan trọng)</h4>
+                            <p class="mb-1"><strong>Tên gốc - chức:</strong> Tên gốc hiđrocacbon + "amin".</p>
+                            <p class="text-sm text-gray-600">Ví dụ: <span class="chem-formula">C<sub>2</sub>H<sub>5</sub>NH<sub>2</sub></span>: Etylamin | <span class="chem-formula">C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub></span>: Phenylamin (Anilin)</p>
+                            <p class="mt-2"><strong>Tên thay thế:</strong> Tên hiđrocacbon mạch chính + vị trí nhóm amin + "amin".</p>
+                            <p class="text-sm text-gray-600">Ví dụ: <span class="chem-formula">CH<sub>3</sub>NH<sub>2</sub></span>: Metanamin</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-blue-800 border-b-2 border-blue-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-blue-100 text-blue-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">2</span>
+                            Tính chất Vật lý
+                        </h2>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li><span class="highlight-text font-semibold">4 Amin thể khí</span> (ở điều kiện thường), mùi khai, tan nhiều trong nước: 
+                                <span class="chem-formula font-bold">CH<sub>3</sub>NH<sub>2</sub>, (CH<sub>3</sub>)<sub>2</sub>NH, (CH<sub>3</sub>)<sub>3</sub>N, C<sub>2</sub>H<sub>5</sub>NH<sub>2</sub></span>.
+                            </li>
+                            <li><strong>Anilin (C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub>):</strong> Chất lỏng, không màu (để lâu chuyển màu đen do oxi hóa), rất độc, ít tan trong nước, nặng hơn nước.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Section 3 -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-blue-800 border-b-2 border-blue-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-blue-100 text-blue-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">3</span>
+                            Tính chất Hóa học
+                        </h2>
+
+                        <div class="space-y-4">
+                            <!-- 3.1 -->
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i data-lucide="zap" class="w-4 h-4 text-yellow-500"></i> Tính Bazơ (Đặc trưng)
+                                </h3>
+                                <p class="text-gray-600 mb-2">Do nguyên tử N còn cặp electron tự do.</p>
+                                
+                                <div class="bg-blue-50 p-3 rounded-lg text-sm mb-3">
+                                    <p class="font-bold text-blue-800">So sánh lực Bazơ:</p>
+                                    <p class="chem-formula mt-1">(Gốc đẩy e) C<sub>n</sub>H<sub>2n+1</sub>-NH<sub>2</sub> > NH<sub>3</sub> > C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub> (Gốc hút e)</p>
+                                    <p class="mt-1 text-gray-500">VD: CH<sub>3</sub>NH<sub>2</sub> > NH<sub>3</sub> > Anilin</p>
+                                </div>
+
+                                <ul class="list-none space-y-2">
+                                    <li class="reaction-box">
+                                        <strong>1. Tác dụng với nước:</strong> Dung dịch amin (trừ anilin) làm quỳ tím hóa xanh, phenolphtalein hóa hồng.<br>
+                                        <span class="text-sm text-gray-500">CH<sub>3</sub>NH<sub>2</sub> + H<sub>2</sub>O ⇄ [CH<sub>3</sub>NH<sub>3</sub>]<sup>+</sup> + OH<sup>-</sup></span>
+                                    </li>
+                                    <li class="reaction-box">
+                                        <strong>2. Tác dụng với Axit:</strong> (Tất cả amin)<br>
+                                        CH<sub>3</sub>NH<sub>2</sub> + HCl (đặc) → CH<sub>3</sub>NH<sub>3</sub>Cl (Khói trắng - Metylamoni clorua)<br>
+                                        C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub> + HCl → C<sub>6</sub>H<sub>5</sub>NH<sub>3</sub>Cl (Phenylamoni clorua - tan trong nước)
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- 3.2 -->
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i data-lucide="flask-conical" class="w-4 h-4 text-purple-500"></i> Phản ứng thế nhân thơm (Của Anilin)
+                                </h3>
+                                <div class="reaction-box border-purple-500 bg-purple-50">
+                                    <p class="mb-1">Anilin tác dụng với nước Brom:</p>
+                                    <p class="chem-formula font-bold text-purple-900 text-center text-lg">C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub> + 3Br<sub>2</sub> → C<sub>6</sub>H<sub>2</sub>Br<sub>3</sub>NH<sub>2</sub>↓ (Trắng) + 3HBr</p>
+                                    <p class="text-sm mt-2 text-purple-700 italic">➔ Dùng để nhận biết Anilin.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'aminoaxit',
+                title: 'BÀI 2: AMINO AXIT',
+                subtitle: 'Hợp chất tạp chức, Lưỡng tính, Các chất cần nhớ',
+                color: 'red',
+                content: `
+                    <!-- Section 1 -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-red-800 border-b-2 border-red-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-red-100 text-red-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">1</span>
+                            Định nghĩa & Cấu tạo
+                        </h2>
+                        <p class="mb-3">Là hợp chất hữu cơ <span class="highlight-text font-bold">tạp chức</span>, phân tử chứa đồng thời nhóm amino (<span class="chem-formula text-blue-600">-NH<sub>2</sub></span>) và nhóm cacboxyl (<span class="chem-formula text-red-600">-COOH</span>).</p>
+                        <p class="chem-formula text-center text-xl font-bold mb-3">(H<sub>2</sub>N)<sub>x</sub> - R - (COOH)<sub>y</sub></p>
+                        
+                        <div class="bg-gray-50 p-4 rounded border-l-4 border-gray-500 text-sm">
+                            <strong>Trạng thái tự nhiên:</strong> Tồn tại ở dạng ion lưỡng cực <span class="chem-formula font-bold">H<sub>3</sub>N<sup>+</sup>-R-COO<sup>-</sup></span>.
+                            <br>➔ Chất rắn kết tinh, không màu, vị hơi ngọt, dễ tan trong nước, nhiệt độ nóng chảy cao.
+                        </div>
+                    </div>
+
+                    <!-- Section 2: 5 Amino Axit -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-red-800 border-b-2 border-red-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-red-100 text-red-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">2</span>
+                            5 Amino Axit Cần Thuộc Lòng (Mẹo Nhớ M)
+                        </h2>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm text-left">
+                                <thead class="bg-red-50 text-red-900 font-bold uppercase">
+                                    <tr>
+                                        <th class="px-4 py-3">Tên</th>
+                                        <th class="px-4 py-3">Công thức</th>
+                                        <th class="px-4 py-3 text-center">M lớn</th>
+                                        <th class="px-4 py-3">Đặc điểm</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium">Glyxin (Gly)</td>
+                                        <td class="px-4 py-3 chem-formula">NH<sub>2</sub>-CH<sub>2</sub>-COOH</td>
+                                        <td class="px-4 py-3 text-center font-bold text-red-600 text-lg">75</td>
+                                        <td class="px-4 py-3 text-gray-500">Nhỏ nhất</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium">Alanin (Ala)</td>
+                                        <td class="px-4 py-3 chem-formula">CH<sub>3</sub>-CH(NH<sub>2</sub>)-COOH</td>
+                                        <td class="px-4 py-3 text-center font-bold text-red-600 text-lg">89</td>
+                                        <td class="px-4 py-3 text-gray-500">Thêm 1 nhóm CH<sub>2</sub> vào Gly</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium">Valin (Val)</td>
+                                        <td class="px-4 py-3 chem-formula">(CH<sub>3</sub>)<sub>2</sub>CH-CH(NH<sub>2</sub>)-COOH</td>
+                                        <td class="px-4 py-3 text-center font-bold text-red-600 text-lg">117</td>
+                                        <td class="px-4 py-3 text-gray-500">Mạch phân nhánh</td>
+                                    </tr>
+                                    <tr class="bg-blue-50/50">
+                                        <td class="px-4 py-3 font-medium text-blue-800">Lysin (Lys)</td>
+                                        <td class="px-4 py-3 chem-formula">H<sub>2</sub>N-[CH<sub>2</sub>]<sub>4</sub>-CH(NH<sub>2</sub>)-COOH</td>
+                                        <td class="px-4 py-3 text-center font-bold text-blue-600 text-lg">146</td>
+                                        <td class="px-4 py-3 text-blue-700 font-medium">2 nhóm NH<sub>2</sub> ➔ Hóa Xanh quỳ</td>
+                                    </tr>
+                                    <tr class="bg-red-50/50">
+                                        <td class="px-4 py-3 font-medium text-red-800">Axit Glutamic (Glu)</td>
+                                        <td class="px-4 py-3 chem-formula">HOOC-[CH<sub>2</sub>]<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+                                        <td class="px-4 py-3 text-center font-bold text-red-600 text-lg">147</td>
+                                        <td class="px-4 py-3 text-red-700 font-medium">2 nhóm COOH ➔ Hóa Đỏ quỳ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Section 3 -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-red-800 border-b-2 border-red-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-red-100 text-red-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">3</span>
+                            Tính chất Hóa học
+                        </h2>
+
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white p-4 border rounded shadow-sm">
+                                <h3 class="font-bold text-gray-800 mb-2">1. Tính lưỡng tính</h3>
+                                <p class="text-sm text-gray-600 mb-2">Vừa tác dụng axit mạnh, vừa tác dụng bazơ mạnh.</p>
+                                <div class="text-xs bg-gray-100 p-2 rounded chem-formula">
+                                    H<sub>2</sub>N-R-COOH + HCl → ClH<sub>3</sub>N-R-COOH<br>
+                                    H<sub>2</sub>N-R-COOH + NaOH → H<sub>2</sub>N-R-COONa + H<sub>2</sub>O
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 border rounded shadow-sm">
+                                <h3 class="font-bold text-gray-800 mb-2">2. Phản ứng Este hóa</h3>
+                                <p class="text-sm text-gray-600 mb-2">Tác dụng với Ancol (xúc tác khí HCl).</p>
+                                <div class="text-xs bg-gray-100 p-2 rounded chem-formula">
+                                    H<sub>2</sub>N-R-COOH + R'OH ⇄ H<sub>2</sub>N-R-COOR' + H<sub>2</sub>O
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reaction-box border-green-500 bg-green-50">
+                            <strong>3. Phản ứng Trùng ngưng:</strong> (Tạo Polime)<br>
+                            Khi đun nóng, các <span class="chem-formula">ε-</span> hoặc <span class="chem-formula">ω-</span>amino axit tham gia phản ứng trùng ngưng tạo Poliamit.<br>
+                            <span class="text-sm italic text-gray-600">VD: nH<sub>2</sub>N-[CH<sub>2</sub>]<sub>5</sub>-COOH → (-NH-[CH<sub>2</sub>]<sub>5</sub>-CO-)<sub>n</sub> + nH<sub>2</sub>O (Tơ nilon-6)</span>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'peptit',
+                title: 'BÀI 3: PEPTIT & PROTEIN',
+                subtitle: 'Liên kết peptit, Thủy phân, Phản ứng màu Biure',
+                color: 'green',
+                content: `
+                    <!-- Section 1: Peptit -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-green-800 border-b-2 border-green-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-green-100 text-green-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">1</span>
+                            Peptit
+                        </h2>
+                        
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-4">
+                            <h3 class="font-bold text-lg mb-2 text-green-700">Định nghĩa</h3>
+                            <p class="mb-2">Là loại hợp chất chứa từ 2 đến 50 gốc <span class="highlight-text font-bold">α-amino axit</span> liên kết với nhau bằng liên kết peptit.</p>
+                            <div class="flex items-center justify-center py-4">
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-l-lg border-r border-white font-mono">-CO</span>
+                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-r-lg font-mono">-NH-</span>
+                            </div>
+                            <p class="text-center text-xs text-gray-500 italic">Liên kết Peptit</p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-green-800 mb-1">Phân loại</h4>
+                                <ul class="list-disc pl-4 text-sm space-y-1">
+                                    <li><strong>Oligopeptit:</strong> 2-10 gốc alpha-amino axit (Đipeptit, Tripeptit...).</li>
+                                    <li><strong>Polipeptit:</strong> 11-50 gốc.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-800 mb-1">Cấu tạo</h4>
+                                <p class="text-sm">Đầu N (nhóm NH<sub>2</sub>) bên trái, đầu C (nhóm COOH) bên phải.</p>
+                                <p class="text-sm font-mono mt-1 text-gray-600">VD: Gly-Ala-Val (Tripeptit)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Protein -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-green-800 border-b-2 border-green-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-green-100 text-green-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">2</span>
+                            Protein (Protit)
+                        </h2>
+                        <ul class="list-none space-y-2 text-gray-700 mb-4">
+                            <li><i data-lucide="check" class="inline w-4 h-4 text-green-500"></i> Là cao phân tử (Polipeptit cao phân tử, M > vài chục nghìn).</li>
+                            <li><i data-lucide="check" class="inline w-4 h-4 text-green-500"></i> Có 2 loại: Protein đơn giản (chỉ chứa a-amino axit) như Albumin (lòng trắng trứng), Fibroin (tơ tằm). Protein phức tạp.</li>
+                        </ul>
+                        <div class="bg-gray-100 p-3 rounded text-sm italic border-l-4 border-gray-400">
+                            Lưu ý: Sự đông tụ protein xảy ra khi đun nóng hoặc cho axit, bazơ, muối. (VD: Luộc trứng, nấu riêu cua).
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Tinh Chat Hoa Hoc -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-green-800 border-b-2 border-green-200 pb-2 mb-4 flex items-center">
+                            <span class="bg-green-100 text-green-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">3</span>
+                            Phản ứng quan trọng
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Thuy Phan -->
+                            <div class="reaction-box border-blue-500 bg-blue-50">
+                                <h3 class="font-bold text-blue-800 mb-1">1. Phản ứng Thủy phân (Peptit & Protein)</h3>
+                                <p class="text-sm mb-1">Xúc tác Axit, Bazơ hoặc Enzim.</p>
+                                <p class="chem-formula text-center">Protein/Peptit + H<sub>2</sub>O → Chuỗi polipeptit ngắn hơn → ... → <span class="font-bold text-red-600">α-Amino Axit</span></p>
+                            </div>
+
+                            <!-- Mau Biure -->
+                            <div class="reaction-box border-purple-500 bg-purple-50">
+                                <h3 class="font-bold text-purple-800 mb-1 flex items-center">
+                                    2. Phản ứng màu Biure (Nhận biết)
+                                    <span class="ml-2 text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">Rất hay thi</span>
+                                </h3>
+                                <p class="text-sm mb-2">Điều kiện: Peptit phải có từ <strong>2 liên kết peptit</strong> trở lên (tức là từ Tripeptit trở lên).</p>
+                                <p class="text-center font-bold text-lg mb-1 chem-formula">Peptit + Cu(OH)<sub>2</sub> (trong môi trường kiềm) → <span class="text-purple-600">Phức màu Tím</span></p>
+                                <p class="text-xs text-red-500 italic text-center">*Đipeptit KHÔNG có phản ứng này.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // --- RENDER LOGIC ---
+        const desktopNav = document.getElementById('desktopNav');
+        const mobileNav = document.getElementById('mobileNav');
+        const contentArea = document.getElementById('contentArea');
+        let currentTabId = lessons[0].id;
+
+        function renderNav() {
+            desktopNav.innerHTML = '';
+            mobileNav.innerHTML = '';
+
+            lessons.forEach(lesson => {
+                const isActive = lesson.id === currentTabId;
+                
+                // Desktop Button
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive ? 'bg-white text-blue-700 shadow ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200'}`;
+                btn.innerText = lesson.title.split(':')[1].trim(); // Get Short Name
+                btn.onclick = () => switchTab(lesson.id);
+                desktopNav.appendChild(btn);
+
+                // Mobile Link
+                const link = document.createElement('a');
+                link.href = "#";
+                link.className = `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`;
+                link.innerText = lesson.title;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    switchTab(lesson.id);
+                    document.getElementById('mobileMenu').classList.add('hidden');
+                };
+                mobileNav.appendChild(link);
+            });
+        }
+
+        function switchTab(id) {
+            currentTabId = id;
+            renderNav();
+            
+            const lesson = lessons.find(l => l.id === id);
+            
+            // Animation Out
+            contentArea.style.opacity = '0';
+            contentArea.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                // Update Content
+                contentArea.innerHTML = `
+                    <div class="text-center mb-10">
+                        <h1 class="text-3xl sm:text-4xl font-black text-${lesson.color}-900 mb-2 font-serif uppercase tracking-wider">${lesson.title}</h1>
+                        <p class="text-gray-500 font-serif italic border-t border-b border-gray-200 inline-block py-2 px-6">${lesson.subtitle}</p>
+                    </div>
+                    <div class="font-sans leading-relaxed text-gray-800">
+                        ${lesson.content}
+                    </div>
+                    <div class="mt-12 pt-6 border-t border-gray-200 text-center text-gray-400 text-sm italic font-serif">
+                        Nguyễn Minh Thiện....!
+                    </div>
+                `;
+                
+                // Re-render Icons
+                lucide.createIcons();
+
+                // Scroll to top of content
+                document.getElementById('mainScroll').scrollTo({top: 0, behavior: 'smooth'});
+
+                // Animation In
+                contentArea.style.opacity = '1';
+                contentArea.style.transform = 'translateY(0)';
+            }, 200);
+        }
+
+        // Init
+        switchTab(lessons[0].id); // Load first lesson
+
+    </script>
+</body>
+</html>
+
