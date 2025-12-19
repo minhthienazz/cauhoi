@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa Học 12</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f0fdf4; /* Xanh lá nhạt nền nã */
+            background-image: radial-gradient(#dcfce7 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669; 
+        }
+
+        /* Chemical Formula Styles */
+        .chem {
+            font-family: 'Times New Roman', serif;
+            font-weight: 500;
+            color: #be123c; /* Rose color for formulas */
+            white-space: nowrap;
+        }
+        .reaction {
+            background-color: #f3f4f6;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #10b981;
+            font-family: 'Times New Roman', serif;
+            margin: 8px 0;
+            display: block;
+            overflow-x: auto;
+        }
+
+        /* Modal Animation */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms, transform 300ms;
+        }
+        .modal-exit {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 200ms, transform 200ms;
+        }
+
+        /* Mind Map Node Styles inside Content */
+        .node-root {
+            color: #065f46;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #10b981;
+            display: inline-block;
+        }
+        .node-branch {
+            color: #047857;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        .node-branch::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .highlight {
+            background-color: #fef3c7; /* Yellow highlight */
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-green-100 z-10 flex-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="flask-conical" class="text-green-600 w-8 h-8"></i>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Hóa Học 12 <span class="text-green-600">MindMap</span></h1>
+            </div>
+            <div class="hidden sm:block text-sm text-gray-500 font-medium">Ôn thi THPT Quốc Gia</div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar (Chapters) - Hidden on mobile initially, visible on desktop -->
+        <aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto hidden md:block flex-none">
+            <div class="p-4">
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Mục lục chương</h2>
+                <nav class="space-y-1" id="chapterList">
+                    <!-- Chapters will be injected here -->
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content Grid -->
+        <div class="flex-1 overflow-y-auto bg-green-50/50 p-4 sm:p-6 scroll-smooth" id="mainScroll">
+            
+            <!-- Search & Filter -->
+            <div class="max-w-6xl mx-auto mb-8 sticky top-0 z-10">
+                <div class="relative shadow-lg rounded-xl">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="text-gray-400 w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="searchInput" 
+                        class="block w-full pl-10 pr-3 py-4 border-none rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-lg transition-all" 
+                        placeholder="Tìm kiếm kiến thức (VD: Este, Glucozơ, Sắt...)...">
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="cardGrid">
+                <!-- Lesson Cards will be injected here -->
+            </div>
+            
+            <!-- Footer -->
+            <div class="text-center mt-12 mb-6 text-gray-400 text-sm">
+                Tổng hợp kiến thức trọng tâm Hóa học 12
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal (The "A4 Paper" View) -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" id="modalBackdrop"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-2 sm:p-4 text-center">
+                
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-4xl h-[90vh] flex flex-col modal-enter" id="modalPanel">
+                    
+                    <!-- Modal Header -->
+                    <div class="bg-green-600 px-4 py-4 sm:px-6 flex justify-between items-center flex-none">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium" id="modalChapter">Chương 1</p>
+                            <h3 class="text-xl sm:text-2xl font-bold leading-6 text-white" id="modalTitle">Tiêu đề bài học</h3>
+                        </div>
+                        <button type="button" onclick="closeModal()" class="rounded-full p-2 bg-green-700 text-green-100 hover:bg-green-800 transition-colors focus:outline-none">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Body (Scrollable) -->
+                    <div class="px-4 py-6 sm:px-8 overflow-y-auto flex-1 bg-white text-gray-700 leading-relaxed text-base" id="modalContent">
+                        <!-- Detailed Theory Content Goes Here -->
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 flex-none border-t border-gray-100">
+                        <button type="button" onclick="closeModal()" class="inline-flex w-full justify-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATA & LOGIC -->
+    <script>
+        // --- DỮ LIỆU SƠ ĐỒ TƯ DUY (Database) ---
+        const chapters = [
+            "Chương 1: Este - Lipit",
+            "Chương 2: Cacbohiđrat",
+            "Chương 3: Amin - Amino Axit - Protein",
+            "Chương 4: Polime & Vật liệu",
+            "Chương 5: Đại cương kim loại",
+            "Chương 6: Kim loại kiềm - Kiềm thổ - Nhôm",
+            "Chương 7: Sắt và kim loại quan trọng",
+            "Chương 8: Phân biệt chất vô cơ"
+        ];
+
+        const lessons = [
+            {
+                id: 1,
+                chapterIndex: 0,
+                title: "ESTE",
+                tags: ["RCOO-R'", "Isoamyl axetat", "Thủy phân"],
+                summary: "Khái niệm, danh pháp, tính chất vật lý (mùi thơm) và phản ứng thủy phân đặc trưng.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Khái niệm & Danh pháp</div>
+                            <p>Thay thế nhóm <span class="chem">-OH</span> ở nhóm cacboxyl của axit cacboxylic bằng nhóm <span class="chem">-OR'</span> → Este.</p>
+                            <div class="reaction text-center">RCOOH + R'OH \u21CC RCOOR' + H<sub>2</sub>O (xt: H<sub>2</sub>SO<sub>4</sub> đặc, t<sup>o</sup>)</div>
+                            <div class="node-branch">Tên gọi:</div>
+                            <p>Tên gốc R' + Tên gốc axit (đuôi at).</p>
+                            <ul class="list-disc pl-5 mt-2 space-y-1">
+                                <li><span class="chem">CH<sub>3</sub>COOC<sub>2</sub>H<sub>5</sub></span>: Etyl axetat</li>
+                                <li><span class="chem">CH<sub>3</sub>COOCH<sub>2</sub>CH<sub>2</sub>CH(CH<sub>3</sub>)<sub>2</sub></span>: Isoamyl axetat (mùi chuối chín)</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Tính chất vật lý</div>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Thường là lỏng hoặc rắn, nhẹ hơn nước, ít tan trong nước.</li>
+                                <li>Nhiệt độ sôi: <span class="highlight">Axit > Ancol > Este</span> (cùng C).</li>
+                                <li>Mùi đặc trưng: Benzyl axetat (hoa nhài), Etyl propionat (dứa).</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Tính chất hóa học</div>
+                            <div class="node-branch">a. Thủy phân trong môi trường Axit (Thuận nghịch)</div>
+                            <div class="reaction">RCOOR' + H<sub>2</sub>O \u21CC RCOOH + R'OH (H<sup>+</sup>, t<sup>o</sup>)</div>
+                            
+                            <div class="node-branch">b. Thủy phân trong môi trường Kiềm (Xà phòng hóa - 1 chiều)</div>
+                            <div class="reaction">RCOOR' + NaOH \u2192 RCOONa + R'OH (t<sup>o</sup>)</div>
+                            
+                            <div class="node-branch">c. Phản ứng tráng bạc (Este của axit fomic HCOO-)</div>
+                            <p>HCOOR' + AgNO<sub>3</sub>/NH<sub>3</sub> \u2192 2Ag</p>
+
+                            <div class="node-branch">d. Phản ứng cháy</div>
+                            <p>Este no, đơn, hở: <span class="chem">C<sub>n</sub>H<sub>2n</sub>O<sub>2</sub></span> (n ≥ 2) đốt cháy cho nCO<sub>2</sub> = nH<sub>2</sub>O.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                chapterIndex: 0,
+                title: "LIPIT (CHẤT BÉO)",
+                tags: ["Trieste", "Axit béo", "Xà phòng hóa"],
+                summary: "Cấu tạo của chất béo, các axit béo thường gặp và ứng dụng trong công nghiệp.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Khái niệm</div>
+                            <p>Lipit là hợp chất hữu cơ có trong tế bào sống, không tan trong nước, tan trong dung môi hữu cơ.</p>
+                            <p><span class="highlight">Chất béo</span> là trieste của glixerol với axit béo, gọi chung là triglixerit.</p>
+                            <div class="reaction text-center">(RCOO)<sub>3</sub>C<sub>3</sub>H<sub>5</sub></div>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Các Axit béo thường gặp</div>
+                            <table class="w-full border-collapse border border-green-200 mt-2">
+                                <tr class="bg-green-100"><th class="p-2 border">Tên Axit</th><th class="p-2 border">Công thức</th><th class="p-2 border">Đặc điểm</th></tr>
+                                <tr><td class="p-2 border">Axit Panmitic</td><td class="p-2 border chem">C<sub>15</sub>H<sub>31</sub>COOH</td><td class="p-2 border">No (Rắn)</td></tr>
+                                <tr><td class="p-2 border">Axit Stearic</td><td class="p-2 border chem">C<sub>17</sub>H<sub>35</sub>COOH</td><td class="p-2 border">No (Rắn)</td></tr>
+                                <tr><td class="p-2 border">Axit Oleic</td><td class="p-2 border chem">C<sub>17</sub>H<sub>33</sub>COOH</td><td class="p-2 border">Không no (1 =, Lỏng)</td></tr>
+                                <tr><td class="p-2 border">Axit Linoleic</td><td class="p-2 border chem">C<sub>17</sub>H<sub>31</sub>COOH</td><td class="p-2 border">Không no (2 =, Lỏng)</td></tr>
+                            </table>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Tính chất hóa học</div>
+                            <div class="node-branch">a. Phản ứng thủy phân</div>
+                            <p>Tương tự este (môi trường axit và kiềm).</p>
+                            <div class="reaction">(RCOO)<sub>3</sub>C<sub>3</sub>H<sub>5</sub> + 3NaOH \u2192 3RCOONa (Xà phòng) + C<sub>3</sub>H<sub>5</sub>(OH)<sub>3</sub></div>
+                            
+                            <div class="node-branch">b. Phản ứng cộng H<sub>2</sub> (Hidro hóa chất béo lỏng)</div>
+                            <p>Chất béo lỏng + H<sub>2</sub> (Ni, t<sup>o</sup>) \u2192 Chất béo rắn (Sản xuất bơ nhân tạo).</p>
+                            
+                            <div class="node-branch">c. Phản ứng oxi hóa</div>
+                            <p>Dầu mỡ để lâu bị ôi do nối đôi C=C bị oxi hóa chậm bởi O<sub>2</sub> không khí.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                chapterIndex: 1,
+                title: "GLUCOZƠ & FRUCTOZƠ",
+                tags: ["Monosaccarit", "C6H12O6", "Tráng bạc"],
+                summary: "Cấu trúc mạch hở/vòng, tính chất của anđehit đa chức và ứng dụng.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Glucozơ (C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>)</div>
+                            <p>Là monosaccarit, có trong quả nho chín (đường nho), máu người (0.1%).</p>
+                            <div class="node-branch">Cấu tạo:</div>
+                            <p>Dạng mạch hở: <span class="chem">CH<sub>2</sub>OH–CHOH–CHOH–CHOH–CHOH–CH=O</span></p>
+                            <p>Có 5 nhóm -OH kề nhau và 1 nhóm -CHO.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Tính chất hóa học của Glucozơ</div>
+                            <div class="node-branch">a. Tính chất của Ancol đa chức</div>
+                            <p>Hòa tan Cu(OH)<sub>2</sub> ở nhiệt độ thường \u2192 Dung dịch xanh lam.</p>
+                            
+                            <div class="node-branch">b. Tính chất của Anđehit</div>
+                            <ul class="list-disc pl-5">
+                                <li>Tráng bạc (AgNO<sub>3</sub>/NH<sub>3</sub>): 1 Glu \u2192 2 Ag.</li>
+                                <li>Mất màu dung dịch Brom.</li>
+                                <li>Cộng H<sub>2</sub> (Ni, t<sup>o</sup>) \u2192 Sobitol.</li>
+                            </ul>
+
+                            <div class="node-branch">c. Phản ứng lên men</div>
+                            <div class="reaction">C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> \u2192 2C<sub>2</sub>H<sub>5</sub>OH + 2CO<sub>2</sub> (enzym, 30-35<sup>o</sup>C)</div>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Fructozơ (Đồng phân của Glucozơ)</div>
+                            <p>Là đường mật ong (40%).</p>
+                            <p>Cấu tạo: Chứa nhóm Xeton (-CO-). Trong môi trường kiềm, Fructozơ chuyển hóa thành Glucozơ nên cũng tráng bạc được.</p>
+                            <p class="text-red-500 italic">*Lưu ý: Fructozơ KHÔNG làm mất màu dung dịch Brom (dùng để phân biệt Glu và Fruc).</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                chapterIndex: 1,
+                title: "SACCLAROZƠ, TINH BỘT & XENLULOZƠ",
+                tags: ["Disaccarit", "Polisaccarit", "Thủy phân"],
+                summary: "So sánh cấu tạo và tính chất thủy phân, phản ứng màu iot.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Saccarozơ (C<sub>12</sub>H<sub>22</sub>O<sub>11</sub>)</div>
+                            <p>Là đisaccarit (gốc \u03B1-Glucozơ + \u03B2-Fructozơ). Đường mía.</p>
+                            <div class="node-branch">Tính chất:</div>
+                            <ul class="list-disc pl-5">
+                                <li>Hòa tan Cu(OH)<sub>2</sub> \u2192 dd Xanh lam (Do có nhiều -OH kề).</li>
+                                <li><span class="highlight">KHÔNG</span> tráng bạc (Do không có nhóm -CHO).</li>
+                                <li>Thủy phân (H<sup>+</sup>, t<sup>o</sup>) \u2192 Glucozơ + Fructozơ \u2192 Sản phẩm tráng bạc được.</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Tinh bột (C<sub>6</sub>H<sub>10</sub>O<sub>5</sub>)<sub>n</sub></div>
+                            <p>Là polisaccarit (các mắt xích \u03B1-Glucozơ).</p>
+                            <p>Hai dạng: Amilozơ (mạch thẳng) và Amilopectin (mạch nhánh).</p>
+                            <div class="node-branch">Tính chất:</div>
+                            <ul class="list-disc pl-5">
+                                <li>Thủy phân \u2192 Glucozơ.</li>
+                                <li>Phản ứng màu với Iot \u2192 <span class="text-blue-600 font-bold">Xanh tím</span> (Nhận biết).</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Xenlulozơ (C<sub>6</sub>H<sub>10</sub>O<sub>5</sub>)<sub>n</sub></div>
+                            <p>Là polisaccarit (các mắt xích \u03B2-Glucozơ), mạch thẳng dài.</p>
+                            <p>CT cấu tạo ghi rõ nhóm OH: [C<sub>6</sub>H<sub>7</sub>O<sub>2</sub>(OH)<sub>3</sub>]<sub>n</sub></p>
+                            <div class="node-branch">Tính chất:</div>
+                            <ul class="list-disc pl-5">
+                                <li>Thủy phân (H<sup>+</sup>, t<sup>o</sup>) \u2192 Glucozơ.</li>
+                                <li>Tác dụng HNO<sub>3</sub> đặc/H<sub>2</sub>SO<sub>4</sub> đặc \u2192 Xenlulozơ trinitrat (Thuốc súng không khói).</li>
+                                <li>Tan trong nước Svayde (Cu(OH)<sub>2</sub>/NH<sub>3</sub>).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                chapterIndex: 2,
+                title: "AMIN",
+                tags: ["R-NH2", "Tính bazơ", "Quỳ tím"],
+                summary: "Khái niệm, phân loại bậc amin và tính bazơ đặc trưng.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Khái niệm & Phân loại</div>
+                            <p>Thay thế H trong NH<sub>3</sub> bằng gốc hidrocacbon.</p>
+                            <p>Bậc amin = số nguyên tử H bị thay thế.</p>
+                            <ul class="list-disc pl-5">
+                                <li>Bậc 1: R-NH<sub>2</sub></li>
+                                <li>Bậc 2: R-NH-R'</li>
+                                <li>Bậc 3: R-N(R')-R''</li>
+                            </ul>
+                            <p>Tên gọi: Tên gốc + amin (VD: CH<sub>3</sub>NH<sub>2</sub>: Metylamin).</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Tính chất vật lý</div>
+                            <p>CH<sub>3</sub>NH<sub>2</sub>, (CH<sub>3</sub>)<sub>2</sub>NH, (CH<sub>3</sub>)<sub>3</sub>N, C<sub>2</sub>H<sub>5</sub>NH<sub>2</sub> là chất khí, mùi khai, tan nhiều trong nước.</p>
+                            <p>Anilin (C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub>) lỏng, không tan, độc.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Tính chất hóa học</div>
+                            <div class="node-branch">a. Tính Bazơ</div>
+                            <p>Tất cả amin đều có tính bazơ.</p>
+                            <ul class="list-disc pl-5">
+                                <li>Làm quỳ tím hóa xanh (Trừ Anilin do tính bazơ quá yếu).</li>
+                                <li>Tác dụng với axit: RNH<sub>2</sub> + HCl \u2192 RNH<sub>3</sub>Cl (Khói trắng).</li>
+                            </ul>
+                            <p><span class="highlight">So sánh tính bazơ:</span> (Gốc đẩy e) > NH<sub>3</sub> > (Gốc hút e - vòng benzen).</p>
+                            <p>VD: CH<sub>3</sub>NH<sub>2</sub> > NH<sub>3</sub> > C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub></p>
+
+                            <div class="node-branch">b. Phản ứng thế nhân thơm của Anilin</div>
+                            <div class="reaction">C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub> + 3Br<sub>2</sub> \u2192 C<sub>6</sub>H<sub>2</sub>Br<sub>3</sub>NH<sub>2</sub> (Kết tủa trắng) + 3HBr</div>
+                            <p>Dùng để nhận biết Anilin.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 6,
+                chapterIndex: 2,
+                title: "AMINO AXIT & PROTEIN",
+                tags: ["Lưỡng tính", "Peptit", "Phản ứng màu Biure"],
+                summary: "Hợp chất tạp chức, tính lưỡng tính và liên kết peptit.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Amino Axit</div>
+                            <p>Hợp chất tạp chức chứa nhóm -NH<sub>2</sub> (bazơ) và -COOH (axit).</p>
+                            <div class="chem">H<sub>2</sub>N-R-COOH</div>
+                            <div class="node-branch">Tính chất:</div>
+                            <ul class="list-disc pl-5">
+                                <li><span class="highlight">Tính lưỡng tính</span>: Tác dụng được cả axit mạnh và bazơ mạnh.</li>
+                                <li>Phản ứng trùng ngưng tạo Polime (Poliamit).</li>
+                            </ul>
+                            <div class="node-branch">5 Amino axit cần nhớ (M):</div>
+                            <p>Glyxin (75), Alanin (89), Valin (117), Lysin (146 - làm quỳ hóa xanh), Axit Glutamic (147 - làm quỳ hóa đỏ/bột ngọt).</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Peptit & Protein</div>
+                            <p><span class="highlight">Liên kết peptit:</span> Liên kết -CO-NH- giữa 2 đơn vị \u03B1-amino axit.</p>
+                            <div class="node-branch">Tính chất hóa học:</div>
+                            <ul class="list-disc pl-5">
+                                <li>Phản ứng thủy phân (trong axit hoặc kiềm) \u2192 Amino axit.</li>
+                                <li><span class="highlight">Phản ứng màu Biure:</span> Peptit (từ tripeptit trở lên) + Cu(OH)<sub>2</sub> \u2192 Phức màu tím đặc trưng.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 7,
+                chapterIndex: 3,
+                title: "POLIME",
+                tags: ["Trùng hợp", "Trùng ngưng", "Tơ", "Cao su"],
+                summary: "Phân loại, phương pháp điều chế và các loại vật liệu polime thông dụng.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Khái niệm & Phân loại</div>
+                            <p>Hợp chất cao phân tử gồm nhiều mắt xích liên kết với nhau.</p>
+                            <p>Nguồn gốc: Thiên nhiên (Bông, tơ tằm), Bán tổng hợp (Tơ visco, tơ axetat), Tổng hợp (Nilon, PE, PVC).</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Điều chế</div>
+                            <div class="node-branch">a. Trùng hợp</div>
+                            <p>Cộng hợp nhiều monome chứa liên kết bội hoặc vòng kém bền (PE, PVC, PS, Cao su Buna).</p>
+                            <div class="node-branch">b. Trùng ngưng</div>
+                            <p>Kết hợp monome có ít nhất 2 nhóm chức, giải phóng phân tử nhỏ (H<sub>2</sub>O). (Nilon-6,6, Tơ Lapsan, Nhựa Novolac).</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Vật liệu Polime</div>
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Chất dẻo:</strong> PE, PVC, PMMA (Thủy tinh hữu cơ - làm kính máy bay).</li>
+                                <li><strong>Tơ:</strong> Nilon-6,6 (Hexa... điamin + Axit ađipic), Tơ Nitron (Olon) may quần áo ấm.</li>
+                                <li><strong>Cao su:</strong> Buna (từ Buta-1,3-đien), Buna-S, Isopren (cao su thiên nhiên). Lưu hóa cao su tạo cấu trúc mạng lưới không gian.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 8,
+                chapterIndex: 4,
+                title: "ĐẠI CƯƠNG KIM LOẠI",
+                tags: ["Dãy điện hóa", "Ăn mòn", "Điện phân"],
+                summary: "Tính chất vật lý, hóa học chung, dãy điện hóa và các phương pháp điều chế.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Tính chất vật lý chung</div>
+                            <p>Do Electron tự do gây ra: Dẫn điện (Ag>Cu>Au>Al>Fe), Dẫn nhiệt, Ánh kim, Dẻo.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Dãy điện hóa</div>
+                            <p class="font-bold text-green-700 p-2 bg-green-50 rounded">K Na Ba Ca Mg Al Zn Fe Ni Sn Pb (H) Cu Hg Ag Pt Au</p>
+                            <p class="italic text-sm">(Khi Nào Ba Cần May Áo Giáp Sắt Nhớ Sang Phố Hỏi Cửa Hàng Á Phi Âu)</p>
+                            <div class="node-branch">Quy tắc \u03B1:</div>
+                            <p>Chất oxi hóa mạnh + Chất khử mạnh \u2192 Oxi hóa yếu + Khử yếu.</p>
+                            <p>VD: Fe + Cu<sup>2+</sup> \u2192 Fe<sup>2+</sup> + Cu.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Ăn mòn kim loại</div>
+                            <div class="node-branch">Ăn mòn điện hóa (Quan trọng):</div>
+                            <p>Điều kiện: 2 điện cực khác chất, tiếp xúc nhau, cùng nhúng trong dung dịch điện ly.</p>
+                            <p>Cực âm (Anot): Kim loại mạnh hơn bị ăn mòn.</p>
+                            <p>VD: Gang (Fe-C) để trong không khí ẩm \u2192 Fe bị ăn mòn.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">4. Điều chế</div>
+                            <ul class="list-disc pl-5">
+                                <li><strong>Điện phân nóng chảy:</strong> K, Na, Ca, Mg, Al (Kim loại mạnh).</li>
+                                <li><strong>Điện phân dung dịch/Nhiệt luyện/Thủy luyện:</strong> Kim loại trung bình và yếu (sau Al).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 9,
+                chapterIndex: 5,
+                title: "KIM LOẠI KIỀM, KIỀM THỔ, NHÔM",
+                tags: ["Na-K", "Ca-Ba", "Nước cứng", "Lưỡng tính Al"],
+                summary: "Tính chất nhóm IA, IIA và kim loại Nhôm. Nước cứng và cách làm mềm.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Kim loại Kiềm (IA) & Kiềm Thổ (IIA)</div>
+                            <p>Tính khử mạnh nhất. Tan trong nước ở đk thường (trừ Be, Mg tan chậm nóng).</p>
+                            <div class="reaction">M + H<sub>2</sub>O \u2192 M(OH)<sub>n</sub> + H<sub>2</sub></div>
+                            <p>Hợp chất quan trọng: NaOH, Na<sub>2</sub>CO<sub>3</sub> (Soda), NaHCO<sub>3</sub> (Thuốc muối), Ca(OH)<sub>2</sub> (Vôi tôi), CaCO<sub>3</sub> (Đá vôi).</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Nước cứng</div>
+                            <p>Chứa nhiều ion Ca<sup>2+</sup>, Mg<sup>2+</sup>.</p>
+                            <ul class="list-disc pl-5">
+                                <li>Tạm thời: Chứa HCO<sub>3</sub><sup>-</sup>. (Mất đi khi đun sôi).</li>
+                                <li>Vĩnh cửu: Chứa Cl<sup>-</sup>, SO<sub>4</sub><sup>2-</sup>.</li>
+                            </ul>
+                            <div class="node-branch">Cách làm mềm:</div>
+                            <p>Nguyên tắc: Kết tủa Ca<sup>2+</sup>, Mg<sup>2+</sup>.</p>
+                            <p>Hóa chất: Na<sub>2</sub>CO<sub>3</sub>, Na<sub>3</sub>PO<sub>4</sub> (Dùng cho mọi loại).</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Nhôm (Al)</div>
+                            <p>Tính khử mạnh (sau kiềm thổ). Có màng oxit bảo vệ bền.</p>
+                            <p><span class="highlight">Phản ứng nhiệt nhôm:</span> Al + Fe<sub>2</sub>O<sub>3</sub> \u2192 Al<sub>2</sub>O<sub>3</sub> + Fe (Hàn đường ray).</p>
+                            <p>Al tan trong dung dịch kiềm: Al + NaOH + H<sub>2</sub>O \u2192 NaAlO<sub>2</sub> + 3/2H<sub>2</sub>.</p>
+                            <div class="node-branch">Hợp chất lưỡng tính:</div>
+                            <p>Al<sub>2</sub>O<sub>3</sub> và Al(OH)<sub>3</sub> tan được trong cả Axit mạnh và Bazơ mạnh.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 10,
+                chapterIndex: 6,
+                title: "SẮT VÀ HỢP CHẤT",
+                tags: ["Fe2+/Fe3+", "Gang - Thép", "Oxit sắt"],
+                summary: "Các số oxi hóa của sắt, hợp kim gang thép và phản ứng đặc trưng.",
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="node-root">1. Vị trí & Cấu tạo</div>
+                            <p>Chu kỳ 4, nhóm VIIIB. Z=26. Cấu hình: [Ar]3d<sup>6</sup>4s<sup>2</sup>.</p>
+                            <p>Số oxi hóa phổ biến: +2, +3.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">2. Tính chất hóa học</div>
+                            <div class="node-branch">a. Tác dụng phi kim</div>
+                            <p>Fe + Cl<sub>2</sub> \u2192 FeCl<sub>3</sub> (Fe lên +3).</p>
+                            <p>Fe + S \u2192 FeS (Fe lên +2).</p>
+                            
+                            <div class="node-branch">b. Tác dụng Axit</div>
+                            <p>HCl/H<sub>2</sub>SO<sub>4</sub> loãng \u2192 Muối Fe(II) + H<sub>2</sub>.</p>
+                            <p>HNO<sub>3</sub>/H<sub>2</sub>SO<sub>4</sub> đặc nóng \u2192 Muối Fe(III) + SP khử (NO<sub>2</sub>, SO<sub>2</sub>...).</p>
+                            <p class="text-red-500 italic">*Lưu ý: Fe thụ động trong HNO<sub>3</sub> đặc nguội, H<sub>2</sub>SO<sub>4</sub> đặc nguội.</p>
+                        </div>
+
+                        <div>
+                            <div class="node-root">3. Hợp chất quan trọng</div>
+                            <p>FeO, Fe(OH)<sub>2</sub>: Tính bazơ + Tính khử.</p>
+                            <p>Fe<sub>2</sub>O<sub>3</sub>, Fe(OH)<sub>3</sub>: Tính bazơ + Tính oxi hóa.</p>
+                            <p>Fe<sub>3</sub>O<sub>4</sub> (Oxit sắt từ): Hỗn hợp FeO.Fe<sub>2</sub>O<sub>3</sub>.</p>
+                            <p><span class="highlight">Muối Fe(II):</span> Làm mất màu thuốc tím KMnO<sub>4</sub>.</p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // --- RENDER LOGIC ---
+
+        function init() {
+            renderChapters();
+            renderCards(lessons);
+            lucide.createIcons();
+            
+            // Xử lý nút active cho chapter đầu tiên (tùy chọn, ở đây show all)
+            filterByChapter('all');
+        }
+
+        function renderChapters() {
+            const nav = document.getElementById('chapterList');
+            let html = `<a href="#" onclick="filterByChapter('all')" class="chapter-link group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-green-50 text-green-700 mb-1 transition-colors">
+                            <i data-lucide="layers" class="mr-3 h-5 w-5 flex-shrink-0 text-green-500"></i>
+                            Tất cả chương
+                        </a>`;
+            
+            chapters.forEach((chap, index) => {
+                html += `
+                    <a href="#" onclick="filterByChapter(${index})" class="chapter-link group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i data-lucide="bookmark" class="mr-3 h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-gray-500"></i>
+                        ${chap.split(':')[0]}
+                    </a>
+                `;
+            });
+            nav.innerHTML = html;
+        }
+
+        function renderCards(data) {
+            const grid = document.getElementById('cardGrid');
+            grid.innerHTML = '';
+
+            data.forEach(lesson => {
+                const chapterName = chapters[lesson.chapterIndex].split(':')[0];
+                const card = document.createElement('div');
+                card.className = "bg-white overflow-hidden shadow rounded-2xl hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-green-200 transform hover:-translate-y-1";
+                card.onclick = () => openModal(lesson.id);
+
+                let tagsHtml = lesson.tags.map(tag => 
+                    `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">${tag}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="px-4 py-5 sm:p-6 h-full flex flex-col">
+                        <div class="flex-none mb-2">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">${chapterName}</span>
+                        </div>
+                        <h3 class="text-lg leading-6 font-bold text-gray-900 mb-2 group-hover:text-green-600">${lesson.title}</h3>
+                        <div class="flex-none flex flex-wrap gap-2 mb-4">
+                            ${tagsHtml}
+                        </div>
+                        <p class="text-sm text-gray-500 flex-1 line-clamp-3">
+                            ${lesson.summary}
+                        </p>
+                        <div class="mt-4 flex items-center text-sm text-green-600 font-medium">
+                            Xem chi tiết <i data-lucide="arrow-right" class="ml-1 w-4 h-4"></i>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // --- INTERACTION LOGIC ---
+
+        function filterByChapter(index) {
+            // Update UI active state sidebar
+            const links = document.querySelectorAll('.chapter-link');
+            links.forEach(link => {
+                link.classList.remove('bg-green-50', 'text-green-700');
+                link.classList.add('text-gray-600');
+            });
+            
+            // Logic lọc
+            let filteredData = [];
+            if (index === 'all') {
+                filteredData = lessons;
+                links[0].classList.add('bg-green-50', 'text-green-700');
+                links[0].classList.remove('text-gray-600');
+            } else {
+                filteredData = lessons.filter(l => l.chapterIndex === index);
+                links[index + 1].classList.add('bg-green-50', 'text-green-700');
+                links[index + 1].classList.remove('text-gray-600');
+            }
+            renderCards(filteredData);
+        }
+
+        // Search logic
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            const filteredData = lessons.filter(l => 
+                l.title.toLowerCase().includes(keyword) || 
+                l.summary.toLowerCase().includes(keyword) ||
+                l.tags.some(t => t.toLowerCase().includes(keyword))
+            );
+            renderCards(filteredData);
+        });
+
+        // Modal Logic
+        const modal = document.getElementById('detailModal');
+        const modalPanel = document.getElementById('modalPanel');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalChapter = document.getElementById('modalChapter');
+        const modalContent = document.getElementById('modalContent');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+
+        function openModal(id) {
+            const lesson = lessons.find(l => l.id === id);
+            if (!lesson) return;
+
+            modalTitle.innerText = lesson.title;
+            modalChapter.innerText = chapters[lesson.chapterIndex];
+            modalContent.innerHTML = lesson.content;
+
+            modal.classList.remove('hidden');
+            // Animation handling
+            requestAnimationFrame(() => {
+                modalPanel.classList.remove('modal-enter');
+                modalPanel.classList.add('modal-enter-active');
+            });
+        }
+
+        function closeModal() {
+            modalPanel.classList.remove('modal-enter-active');
+            modalPanel.classList.add('modal-exit-active');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalPanel.classList.remove('modal-exit-active');
+                modalPanel.classList.add('modal-enter'); // Reset for next open
+            }, 200);
+        }
+
+        // Close when clicking backdrop
+        modalBackdrop.onclick = closeModal;
+
+        // Initialize App
+        init();
+
+    </script>
+</body>
+</html>
+
